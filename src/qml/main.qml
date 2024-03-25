@@ -77,7 +77,8 @@ Item {
 		onKey: (key) => {
 			ignoreRelease = ignoreRelease + 1 ;
 			if (ignoreRelease == 4) {
-				ignoreRelease = 1 ;
+				ignoreRelease = 0 ;
+		    } else {
 				return;
 			}
 
