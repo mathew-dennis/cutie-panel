@@ -77,7 +77,6 @@ Item {
 		onKey: (key) => {
 			if (key == CutieWlc.PowerRelease && !outputPowerManager.mode) {
 				outputPowerManager.mode = true;
-				relockTimer.start();
 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
 				outputPowerManager.mode = false;
 				lockscreen.visible = true;
