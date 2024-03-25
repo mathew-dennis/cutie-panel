@@ -72,16 +72,18 @@ Item {
 	CutieWlc {
 		id: cutieWlc
 
-		property bool ignoreRelease: false
+		property init ignoreRelease: 0
 		
 		onKey: (key) => {
-			if (ignoreRelease) {
-				ignoreRelease = false;
+			ignoreRelease = ignoreRelease + 1 ;
+			if (ignoreRelease == 4) {
+				ignoreRelease = 1 ;
 				return;
 			}
-            console.log("Hello world!");
-			if (key == CutieWlc.PowerRelease && !outputPowerManager.mode) {
+
+			if (key == CutieWlc.PowerRelease  && !outputPowerManager.mode) {
 				outputPowerManager.mode = true;
+				relockTimer.start();
 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
 				outputPowerManager.mode = false;
 				lockscreen.visible = true;
