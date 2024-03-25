@@ -72,7 +72,7 @@ Item {
 	CutieWlc {
 		id: cutieWlc
 
-		property init ignoreRelease: 0
+		property int ignoreRelease: 0
 		
 		onKey: (key) => {
 			ignoreRelease = ignoreRelease + 1 ;
