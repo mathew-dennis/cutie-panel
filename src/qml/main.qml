@@ -75,14 +75,8 @@ Item {
 		property bool ignoreRelease: false
 		
 		onKey: (key) => {
-			if (ignoreRelease) {
-				ignoreRelease = false;
-				return;
-			}
-
-			if (key == CutieWlc.PowerPress && !outputPowerManager.mode) {
+			if (key == CutieWlc.PowerRelease && !outputPowerManager.mode) {
 				outputPowerManager.mode = true;
-				ignoreRelease = true;
 				relockTimer.start();
 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
 				outputPowerManager.mode = false;
