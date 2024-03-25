@@ -80,14 +80,7 @@ Item {
 				return;
 			}
 
-			if (key == CutieWlc.PowerRelease && !outputPowerManager.mode) {
-				outputPowerManager.mode = true;
-			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
-				outputPowerManager.mode = false;
-				lockscreen.visible = true;
-				lockscreen.opacity = 1;
-				settingsState.state = "closed";
-			}
+			
 		}
 	}
 
