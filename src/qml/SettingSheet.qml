@@ -6,8 +6,8 @@ import Cutie
 Item {
     id: settingSheet
     width: Screen.width
-    height: Screen.height
-    y: -Screen.height
+    height: Screen.height + 1
+    y: -(Screen.height + 1)
 
     property alias containerOpacity: settingContainer.opacity
     property string wifiIcon: "icons/network-wireless-offline.svg"
@@ -235,20 +235,23 @@ Item {
     Item {
         id: dragArea
         x: 0
-        y: parent.height - 10
-        height: 10
+        y: parent.height - height
+        height: 30
         width: parent.width
 
         MouseArea {
-            drag.target: parent; drag.axis: Drag.YAxis; drag.minimumY: - 10; drag.maximumY: Screen.height - 10
+            drag.target: parent
+            drag.axis: Drag.YAxis
+            drag.minimumY: -parent.height
+            drag.maximumY: Screen.height - parent.height
             enabled: settingsState.state != "closed"
             anchors.fill: parent
             propagateComposedEvents: true
 
             onPressed: {
                 settingsState.state = "closing";
-                settingContainer.opacity = parent.y + 10 / Screen.height;
-                settingContainer.y = parent.y + 10 - Screen.height;
+                settingContainer.opacity = (parent.y + parent.height) / Screen.height;
+                settingContainer.y = parent.y - Screen.height;
             }
 
             onReleased: {
@@ -263,8 +266,8 @@ Item {
 
             onPositionChanged: {
                 if (drag.active) {
-                    settingContainer.opacity = parent.y + 10 / Screen.height;
-                    settingContainer.y = parent.y + 10 - Screen.height;
+                    settingContainer.opacity = (parent.y + parent.height) / Screen.height;
+                    settingContainer.y = parent.y - Screen.height;
                 }
             }
         }
@@ -277,27 +280,30 @@ Item {
         width: parent.width
         z: 4
 
+        onOpacityChanged: {
+            if (opacity === 0
+                && settingsState.state === "closed"
+                && !lockscreen.visible) {
+                settingsState.height = setting.height;
+            }
+        }
+
         state: settingsState.state
 
         states: [
             State {
                 name: "opened"
                 PropertyChanges { target: settingContainer; y: 0; opacity: 1 }
-                PropertyChanges { target: dragArea; y: Screen.height - 10}
-                PropertyChanges { target: settingsState; height: Screen.height }
+                PropertyChanges { target: dragArea; y: Screen.height - dragArea.height }
             },
             State {
                 name: "closed"
-                PropertyChanges { target: settingContainer; y: -Screen.height; opacity: 0 }
             },
             State {
                 name: "opening"
-                PropertyChanges { target: settingContainer; y: -Screen.height }
             },
             State {
                 name: "closing"
-                PropertyChanges { target: settingContainer; y: 0 }
-                PropertyChanges { target: settingsState; height: Screen.height }
             }
         ]
 
@@ -312,8 +318,8 @@ Item {
             Transition {
                 to: "closed"
                 ParallelAnimation {
-                    NumberAnimation { target: settingContainer; properties: "y"; duration: 250; easing.type: Easing.InOutQuad; }
-                    NumberAnimation { target: settingContainer; properties: "opacity"; duration: 250; easing.type: Easing.InOutQuad; }
+                    NumberAnimation { target: settingContainer; properties: "y"; duration: 250; easing.type: Easing.InOutQuad; to: -(Screen.height + 1) }
+                    NumberAnimation { target: settingContainer; properties: "opacity"; duration: 250; easing.type: Easing.InOutQuad; to: 0}
                 }
             }
         ]
@@ -490,7 +496,7 @@ Item {
             anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.leftMargin: 10
-            anchors.bottomMargin: 50
+            anchors.bottomMargin: 60
             source: "icons/gpm-brightness-lcd-disabled.svg"
             sourceSize.height: height*2
             sourceSize.width: width*2
@@ -510,7 +516,7 @@ Item {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin: 10
-            anchors.bottomMargin: 50
+            anchors.bottomMargin: 60
             source: "icons/gpm-brightness-lcd"
             sourceSize.height: height*2
             sourceSize.width: width*2

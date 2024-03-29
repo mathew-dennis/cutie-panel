@@ -155,6 +155,7 @@ Item {
 
             onPressed: {
                 settingsState.state = "opening";
+                settingsState.height = Screen.height + 1;
                 settingSheet.setSettingContainerY(-Screen.height);
                 settingSheet.containerOpacity = 0;
                 settingSheet.y = 0;
