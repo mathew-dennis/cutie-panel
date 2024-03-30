@@ -139,13 +139,14 @@ Item {
             anchors.fill: parent
 
             onReleased: {
-                if (parent.y > parent.height) { 
-                    settingsState.state = "opened"
-                }
+                if (parent.y > parent.height)
+                    settingsState.state = "opened";
                 else { 
-                    settingsState.state = "closed"
+                    settingsState.state = "closed";
+                    if (!lockscreen.visible)
+                        settingsState.height = setting.height;
                 }
-                parent.y = 0
+                parent.y = 0;
             }
             
             onPositionChanged: {
