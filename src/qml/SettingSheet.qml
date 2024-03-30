@@ -10,8 +10,8 @@ Item {
     y: -(Screen.height + 1)
 
     property alias containerOpacity: settingContainer.opacity
-    property string wifiIcon: "icons/network-wireless-offline.svg"
-    property string primaryModemIcon: "icons/network-cellular-offline.svg"
+    property string wifiIcon: "image://icon/network-wireless-offline-symbolic"
+    property string primaryModemIcon: "image://icon/network-cellular-offline-symbolic"
 
     CutieStore {
         id: quickStore
@@ -53,7 +53,7 @@ Item {
                 if (btn.tText == "Cellular " + (n + 1).toString()) {
                     if (!modem.online || !modem.powered) {
                         btn.bText = qsTr("Offline");
-                        btn.icon = "icons/network-cellular-offline.svg"
+                        btn.icon = "image://icon/network-cellular-offline-symbolic"
                         if (n == 0)
                             settingSheet.primaryModemIcon = btn.icon;
                     }
@@ -71,10 +71,10 @@ Item {
                     if (netStatus === CutieModem.Unregistered
                         || netStatus === CutieModem.Denied) {
                         btn.bText = qsTr("Offline");
-                        btn.icon = "icons/network-cellular-offline.svg"
+                        btn.icon = "image://icon/network-cellular-offline-symbolic"
                     } else if (netStatus === CutieModem.Searching) {
                         btn.bText = qsTr("Searching");
-                        btn.icon = "icons/network-cellular-no-route.svg"
+                        btn.icon = "image://icon/network-cellular-no-route-symbolic"
                     }
 
                     if (n == 0)
@@ -111,15 +111,15 @@ Item {
                         || netStatus === CutieModem.Roaming
                         || netStatus === CutieModem.Unknown) {     
                         if (netStrength > 80) {
-                            btn.icon = "icons/network-cellular-signal-excellent.svg"
+                            btn.icon = "image://icon/network-cellular-signal-excellent-symbolic"
                         } else if (netStrength > 50) {
-                            btn.icon = "icons/network-cellular-signal-good.svg"
+                            btn.icon = "image://icon/network-cellular-signal-good-symbolic"
                         } else if (netStrength > 30) {
-                            btn.icon = "icons/network-cellular-signal-ok.svg"
+                            btn.icon = "image://icon/network-cellular-signal-ok-symbolic"
                         } else if (netStrength > 10) {
-                            btn.icon = "icons/network-cellular-signal-low.svg"
+                            btn.icon = "image://icon/network-cellular-signal-low-symbolic"
                         } else {
-                            btn.icon = "icons/network-cellular-signal-none.svg"
+                            btn.icon = "image://icon/network-cellular-signal-none-symbolic"
                         }
 
                         if (n == 0)
@@ -145,7 +145,7 @@ Item {
             settingsModel.append({
                 tText: qsTr("Cellular ") + (n + 1).toString(),
                 bText: qsTr("Offline"),
-                icon: "icons/network-cellular-offline.svg"
+                icon: "image://icon/network-cellular-offline-symbolic"
             });
             
             modemDataChangeHandler(n)();
@@ -161,15 +161,15 @@ Item {
             if (btn.tText == qsTr("WiFi")) {
                 btn.bText = CutieWifiSettings.activeAccessPoint.data["Ssid"].toString();
                 if (wData.Strength > 80) {
-                    btn.icon = "icons/network-wireless-signal-excellent-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-excellent-symbolic"
                 } else if (wData.Strength > 50) {
-                    btn.icon = "icons/network-wireless-signal-good-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-good-symbolic"
                 } else if (wData.Strength > 30) {
-                    btn.icon = "icons/network-wireless-signal-ok-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-ok-symbolic"
                 } else if (wData.Strength > 10) {
-                    btn.icon = "icons/network-wireless-signal-low-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-low-symbolic"
                 } else {
-                    btn.icon = "icons/network-wireless-signal-none-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-none-symbolic"
                 }
                 settingSheet.wifiIcon = btn.icon;
             }
@@ -186,7 +186,7 @@ Item {
                 let btn = settingsModel.get(i)
                 if (btn.tText == qsTr("WiFi")) {
                     btn.bText = qsTr("Offline");
-                    btn.icon = "icons/network-wireless-offline.svg";
+                    btn.icon = "image://icon/network-wireless-offline-symbolic";
                     settingSheet.wifiIcon = btn.icon;
                 }
             }
@@ -199,7 +199,7 @@ Item {
                 let btn = settingsModel.get(i)
                 if (btn.tText == qsTr("WiFi")) {
                     btn.bText = qsTr("Disabled");
-                    btn.icon = "icons/network-wireless-offline.svg";
+                    btn.icon = "image://icon/network-wireless-offline-symbolic";
                     settingSheet.wifiIcon = btn.icon;
                 }
             }
@@ -402,7 +402,7 @@ Item {
             ListElement {
                 bText: ""
                 tText: qsTr("WiFi")
-                icon: "icons/network-wireless-offline.svg"
+                icon: "image://icon/network-wireless-offline-symbolic"
             }
 
         }
@@ -461,12 +461,32 @@ Item {
                     }
 
                     Image {
+                        id: widgetIcon
                         anchors.fill: parent
                         anchors.margins: parent.width / 3
                         source: icon
                         sourceSize.height: 128
                         sourceSize.width: 128
                         fillMode: Image.PreserveAspectFit
+                        visible: false
+                    }
+
+                    Rectangle {
+                        id: widgetIconMask
+                        anchors.fill: widgetIcon
+                        visible: false
+                        color: Atmosphere.textColor
+                        opacity: 1.0
+
+                        Behavior on color {
+                            ColorAnimation { duration: 500; easing.type: Easing.InOutQuad }
+                        }
+                    }
+
+                    OpacityMask {
+                        source: widgetIconMask
+                        maskSource: widgetIcon
+                        anchors.fill: widgetIcon
                     }
 
                     MouseArea {
@@ -478,7 +498,7 @@ Item {
         }
 
         Rectangle {
-            id: iconMask
+            id: brightnessIconMask
             width: parent.height
             height: width
             visible: false
@@ -490,50 +510,45 @@ Item {
         }
 
         Image {
-            id: brightnessMin
+            id: brightnessIcon
+            width: brightnessSlider.height / 2
+            height: width
+            source: "image://icon/display-brightness-symbolic"
+            sourceSize.height: height*2
+            sourceSize.width: width*2
+            visible: false
+        }
+
+        OpacityMask {
+            id: brightnessIconMin
+            source: brightnessIconMask
+            maskSource: brightnessIcon
             width: brightnessSlider.height / 2
             height: width
             anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.leftMargin: 10
             anchors.bottomMargin: 60
-            source: "icons/gpm-brightness-lcd-disabled.svg"
-            sourceSize.height: height*2
-            sourceSize.width: width*2
-            visible: false
+            opacity: 0.5
         }
 
         OpacityMask {
-            anchors.fill: brightnessMin
-            source: iconMask
-            maskSource: brightnessMin
-        }
-
-        Image {
-            id: brightnessMax
+            id: brightnessIconMax
+            source: brightnessIconMask
+            maskSource: brightnessIcon
             width: brightnessSlider.height / 2
             height: width
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin: 10
             anchors.bottomMargin: 60
-            source: "icons/gpm-brightness-lcd"
-            sourceSize.height: height*2
-            sourceSize.width: width*2
-            visible: false
-        }
-
-        OpacityMask {
-            anchors.fill: brightnessMax
-            source: iconMask
-            maskSource: brightnessMax
         }
 
         CutieSlider {
             id: brightnessSlider
             value: "brightness" in quickStore.data ? quickStore.data["brightness"] : 1.0
-            anchors.left: brightnessMin.right
-            anchors.right: brightnessMax.left
+            anchors.left: brightnessIconMin.right
+            anchors.right: brightnessIconMax.left
             anchors.bottom: parent.bottom
             anchors.rightMargin: 10
             anchors.leftMargin: 10

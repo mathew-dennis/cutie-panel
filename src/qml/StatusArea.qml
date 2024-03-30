@@ -67,12 +67,14 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         width: 13
         height: 13
-        source: ((batteryStatus.Percentage == 100) ? "icons/battery-100-charged.svg" : 
-            ((batteryStatus.State === 1) ? ((batteryStatus.Percentage > 70) ? "icons/battery-070-charging.svg" : 
-            ((batteryStatus.Percentage > 50) ? "icons/battery-050-charging.svg": "icons/battery-010-charging.svg")) : 
-            ((batteryStatus.Percentage > 90) ? "icons/battery-090.svg" : ((batteryStatus.Percentage > 70) ? "icons/battery-070.svg" : 
-            ((batteryStatus.Percentage > 50) ? "icons/battery-050.svg" : ((batteryStatus.Percentage > 30) ? "icons/battery-030.svg" :
-            "icons/battery-010.svg"))))))
+        source: ("image://icon/battery-" +
+            (batteryStatus.Percentage > 80 ? "full" :
+            (batteryStatus.Percentage > 40 ? "good" :
+            (batteryStatus.Percentage > 20 ? "caution" :
+            (batteryStatus.Percentage > 5 ? "low": "empty")))) +
+            (batteryStatus.State === 1 ? 
+            (batteryStatus.Percentage === 100 ? "-charged" : "-charging") : "")
+            + "-symbolic")
         sourceSize.height: 128
         sourceSize.width: 128
         fillMode: Image.PreserveAspectFit
