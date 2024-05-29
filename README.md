@@ -1,6 +1,6 @@
 # Cutie Panel
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/cutie-shell/cutie-panel/tree/droidian.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/cutie-shell/cutie-panel/tree/droidian)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/cutie-shell/cutie-panel/tree/cutie.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/cutie-shell/cutie-panel/tree/cutie)
 
 The default status bar and quick settings panel for Cutie
 
