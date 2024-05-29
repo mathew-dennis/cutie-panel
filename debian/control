@@ -9,7 +9,7 @@ Build-Depends: pkg-kde-tools,
                qt6-base-private-dev,
                pkg-config,
                qt6-declarative-dev,
-               libqt6dbus6,
+               libqt6dbus6t64,
                liblayershellqtinterface6-dev,
                libudev-dev
 Standards-Version: 4.5.1
@@ -20,3 +20,4 @@ Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}, qml6-module-cutie, qt6-layer-shell
 Description: This package contains the default status bar and quick settings panel for Cutie.
+
