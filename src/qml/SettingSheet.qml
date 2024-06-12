@@ -17,6 +17,20 @@ Item {
         id: quickStore
         appName: "cutie-panel"
         storeName: "quicksettings"
+
+        function applyChanges() {
+            if (!("brightness" in data))
+                return;
+
+            brightnessSlider.value = data["brightness"];
+            quicksettings.SetBrightness(
+                brightnessSlider.maxBrightness / 11
+                + brightnessSlider.maxBrightness 
+                * brightnessSlider.value / 1.1);
+        }
+
+        onDataChanged: applyChanges();
+        Component.onCompleted: applyChanges();
     }
 
     Image {
@@ -560,18 +574,6 @@ Item {
                 let data = quickStore.data;
                 data["brightness"] = value;
                 quickStore.data = data;
-                quicksettings.SetBrightness(maxBrightness / 11 + maxBrightness * value / 1.1);
-            }
-
-            Connections {
-                target: quickStore
-                function onDataChanged() {
-                    brightnessSlider.value = quickStore.data["brightness"];
-                    quicksettings.SetBrightness(
-                        brightnessSlider.maxBrightness / 11
-                        + brightnessSlider.maxBrightness 
-                        * brightnessSlider.value / 1.1);
-                }
             }
         }
     }
