@@ -13,24 +13,26 @@ Item {
     property string wifiIcon: "image://icon/network-wireless-offline-symbolic"
     property string primaryModemIcon: "image://icon/network-cellular-offline-symbolic"
 
+    function setBrightness(value) {
+        let data = quickStore.data;
+        data["brightness"] = value;
+        quickStore.data = data;
+
+        brightnessSlider.value = data["brightness"];
+        quicksettings.SetBrightness(
+            brightnessSlider.maxBrightness / 11
+            + brightnessSlider.maxBrightness 
+            * brightnessSlider.value / 1.1);
+    }
+
     CutieStore {
         id: quickStore
         appName: "cutie-panel"
         storeName: "quicksettings"
 
-        function applyChanges() {
-            if (!("brightness" in data))
-                return;
-
-            brightnessSlider.value = data["brightness"];
-            quicksettings.SetBrightness(
-                brightnessSlider.maxBrightness / 11
-                + brightnessSlider.maxBrightness 
-                * brightnessSlider.value / 1.1);
-        }
-
-        onDataChanged: applyChanges();
-        Component.onCompleted: applyChanges();
+        Component.onCompleted: settingSheet.setBrightness(
+            "brightness" in quickStore.data
+            ? quickStore.data["brightness"] : 1.0);
     }
 
     Image {
@@ -570,11 +572,7 @@ Item {
 
             property int maxBrightness: quicksettings.GetMaxBrightness()
 
-            onMoved: {
-                let data = quickStore.data;
-                data["brightness"] = value;
-                quickStore.data = data;
-            }
+            onMoved: settingSheet.setBrightness(value);
         }
     }
 }
