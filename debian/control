@@ -17,6 +17,10 @@ Package: cutie-panel
 Architecture: any
 Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, ${shlibs:Depends}, qml6-module-cutie, qt6-layer-shell
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         qml6-module-cutie,
+         qml6-module-cutienetworking,
+         qt6-layer-shell,
 Description: This package contains the default status bar and quick settings panel for Cutie.
 
