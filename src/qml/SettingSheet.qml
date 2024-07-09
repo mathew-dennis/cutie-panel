@@ -4,6 +4,7 @@ import Qt5Compat.GraphicalEffects
 import Cutie
 import Cutie.Modem
 import Cutie.Networking
+import Cutie.Store
 
 Item {
     id: settingSheet
