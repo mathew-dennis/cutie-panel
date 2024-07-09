@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 import Cutie
+import Cutie.Modem
 import Cutie.Networking
 
 Item {
