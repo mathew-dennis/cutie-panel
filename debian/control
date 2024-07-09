@@ -20,6 +20,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          qml6-module-cutie,
+         qml6-module-cutiemodem,
          qml6-module-cutienetworking,
          qt6-layer-shell,
 Description: This package contains the default status bar and quick settings panel for Cutie.
