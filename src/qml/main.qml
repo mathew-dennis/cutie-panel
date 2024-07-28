@@ -82,6 +82,12 @@ Item {
                 case CutieWlc.PowerRelease:
                     console.log("Power button released");
                     break;
+                case CutieWlc.VolumeUpPress:
+                    console.log("Volume up button pressed");
+                    break;
+                case CutieWlc.VolumeDown:
+                    console.log("Volume down button pressed");
+                    break;
                 default:
                     console.log("Unknown key pressed:", key);
                     break;
