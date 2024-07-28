@@ -76,16 +76,16 @@ Item {
         
         onKey: (key) => {
             switch (key) {
-                case CutieWlc.PowerPressb:
+                case CutieWlc.PowerPress:
                     console.log("Power button pressed");
                     break;
                 case CutieWlc.PowerRelease:
                     console.log("Power button released");
                     break;
-                case CutieWlc.VolumeUpPress:
+                case CutieWlc.VolumeupPress:
                     console.log("Volume up button pressed");
                     break;
-                case CutieWlc.VolumeDown:
+                case CutieWlc.volume_up_press:
                     console.log("Volume down button pressed");
                     break;
                 default:
