@@ -5,7 +5,7 @@ Item {
 	id: settingsState
 
 	width: Screen.width
-	height: (lockscreen.visible || state != "closed") ? Screen.height : 30
+	height: Screen.height + 1
 
 	state: "closed" 
 	states: [
@@ -90,6 +90,7 @@ Item {
 				lockscreen.visible = true;
 				lockscreen.opacity = 1;
 				settingsState.state = "closed";
+				settingsState.height = Screen.height + 1;
 			}
 		}
 	}

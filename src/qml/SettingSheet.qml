@@ -6,12 +6,12 @@ import Cutie
 Item {
     id: settingSheet
     width: Screen.width
-    height: Screen.height
-    y: -Screen.height
+    height: Screen.height + 1
+    y: -(Screen.height + 1)
 
     property alias containerOpacity: settingContainer.opacity
-    property string wifiIcon: "icons/network-wireless-offline.svg"
-    property string primaryModemIcon: "icons/network-cellular-offline.svg"
+    property string wifiIcon: "image://icon/network-wireless-offline-symbolic"
+    property string primaryModemIcon: "image://icon/network-cellular-offline-symbolic"
 
     CutieStore {
         id: quickStore
@@ -47,13 +47,34 @@ Item {
 
     function modemDataChangeHandler(n) {
         return () => {
-            let data = CutieModemSettings.modems[n].data;
+            let modem = CutieModemSettings.modems[n];
             for (let i = 0; i < settingsModel.count; i++) {
                 let btn = settingsModel.get(i)
                 if (btn.tText == "Cellular " + (n + 1).toString()) {
-                    if (!data.Online || !data.Powered) {
+                    if (!modem.online || !modem.powered) {
                         btn.bText = qsTr("Offline");
-                        btn.icon = "icons/network-cellular-offline.svg"
+                        btn.icon = "image://icon/network-cellular-offline-symbolic"
+                        if (n == 0)
+                            settingSheet.primaryModemIcon = btn.icon;
+                    }
+                }
+            }
+        }
+    }
+
+    function modemNetStatusChangeHandler(n) {
+        return () => {
+            let netStatus = CutieModemSettings.modems[n].networkStatus;
+            for (let i = 0; i < settingsModel.count; i++) {
+                let btn = settingsModel.get(i)
+                if (btn.tText == "Cellular " + (n + 1).toString()) {
+                    if (netStatus === CutieModem.Unregistered
+                        || netStatus === CutieModem.Denied) {
+                        btn.bText = qsTr("Offline");
+                        btn.icon = "image://icon/network-cellular-offline-symbolic"
+                    } else if (netStatus === CutieModem.Searching) {
+                        btn.bText = qsTr("Searching");
+                        btn.icon = "image://icon/network-cellular-no-route-symbolic"
                     }
 
                     if (n == 0)
@@ -63,36 +84,47 @@ Item {
         }
     }
 
-    function modemNetDataChangeHandler(n) {
+    function modemNetNameChangeHandler(n) {
         return () => {
-            let netData = CutieModemSettings.modems[n].netData;
+            let netStatus = CutieModemSettings.modems[n].networkStatus;
             for (let i = 0; i < settingsModel.count; i++) {
                 let btn = settingsModel.get(i)
                 if (btn.tText == "Cellular " + (n + 1).toString()) {
-                    if (netData.Status === "unregistered"
-                        || netData.Status === "denied") {
-                        btn.bText = qsTr("Offline");
-                        btn.icon = "icons/network-cellular-offline.svg"
-                    } else if (netData.Status === "searching") {
-                        btn.bText = qsTr("Searching");
-                        btn.icon = "icons/network-cellular-no-route.svg"
-                    } else {
-                        btn.bText = netData.Name;
-                        if (netData.Strength > 80) {
-                            btn.icon = "icons/network-cellular-signal-excellent.svg"
-                        } else if (netData.Strength > 50) {
-                            btn.icon = "icons/network-cellular-signal-good.svg"
-                        } else if (netData.Strength > 30) {
-                            btn.icon = "icons/network-cellular-signal-ok.svg"
-                        } else if (netData.Strength > 10) {
-                            btn.icon = "icons/network-cellular-signal-low.svg"
-                        } else {
-                            btn.icon = "icons/network-cellular-signal-none.svg"
-                        }
+                    if (netStatus === CutieModem.Registered
+                        || netStatus === CutieModem.Roaming
+                        || netStatus === CutieModem.Unknown) {
+                        btn.bText = CutieModemSettings.modems[n].networkName;
                     }
+                }
+            }
+        }
+    }
 
-                    if (n == 0)
-                        settingSheet.primaryModemIcon = btn.icon;
+    function modemNetStrengthChangeHandler(n) {
+        return () => {
+            let netStatus = CutieModemSettings.modems[n].networkStatus;
+            let netStrength = CutieModemSettings.modems[n].networkStrength;
+            for (let i = 0; i < settingsModel.count; i++) {
+                let btn = settingsModel.get(i)
+                if (btn.tText == "Cellular " + (n + 1).toString()) {
+                    if (netStatus === CutieModem.Registered
+                        || netStatus === CutieModem.Roaming
+                        || netStatus === CutieModem.Unknown) {     
+                        if (netStrength > 80) {
+                            btn.icon = "image://icon/network-cellular-signal-excellent-symbolic"
+                        } else if (netStrength > 50) {
+                            btn.icon = "image://icon/network-cellular-signal-good-symbolic"
+                        } else if (netStrength > 30) {
+                            btn.icon = "image://icon/network-cellular-signal-ok-symbolic"
+                        } else if (netStrength > 10) {
+                            btn.icon = "image://icon/network-cellular-signal-low-symbolic"
+                        } else {
+                            btn.icon = "image://icon/network-cellular-signal-none-symbolic"
+                        }
+
+                        if (n == 0)
+                            settingSheet.primaryModemIcon = btn.icon;
+                    }
                 }
             }
         }
@@ -101,43 +133,25 @@ Item {
     function modemsChangeHandler(modems) {
         for (let n = 0; n < modems.length; n++) {
             let data = modems[n].data;
-            CutieModemSettings.modems[n].dataChanged.connect(modemDataChangeHandler(n));
-            CutieModemSettings.modems[n].netDataChanged.connect(modemNetDataChangeHandler(n));
-            let icon;
+            CutieModemSettings.modems[n].poweredChanged.connect(modemDataChangeHandler(n));
+            CutieModemSettings.modems[n].onlineChanged.connect(modemDataChangeHandler(n));
+            CutieModemSettings.modems[n].networkStatusChanged.connect(modemNetStatusChangeHandler(n));
+            CutieModemSettings.modems[n].networkNameChanged.connect(modemNetNameChangeHandler(n));
+            CutieModemSettings.modems[n].networkStrengthChanged.connect(modemNetStrengthChangeHandler(n));
 
-            if (data.Online && data.Powered) {
-                let netData = modems[n].netData;
-                if (netData.Strength > 80) {
-                    icon = "icons/network-cellular-signal-excellent.svg"
-                } else if (netData.Strength > 50) {
-                    icon = "icons/network-cellular-signal-good.svg"
-                } else if (netData.Strength > 30) {
-                    icon = "icons/network-cellular-signal-ok.svg"
-                } else if (netData.Strength > 10) {
-                    icon = "icons/network-cellular-signal-low.svg"
-                } else {
-                    icon = "icons/network-cellular-signal-none.svg"
-                }
+            CutieModemSettings.modems[n].powered = true;
+            CutieModemSettings.modems[n].online = true;
 
-                settingsModel.append({
-                    tText: qsTr("Cellular ") + (n + 1).toString(),
-                    bText: netData.Name,
-                    icon: icon
-                });
-            } else {
-                icon = "icons/network-cellular-offline.svg";
-                settingsModel.append({
-                    tText: qsTr("Cellular ") + (n + 1).toString(),
-                    bText: qsTr("Offline"),
-                    icon: icon
-                });
-
-                CutieModemSettings.modems[n].setProp("Powered", true);
-                CutieModemSettings.modems[n].setProp("Online", true);
-            }
-
-            if (n == 0)
-                settingSheet.primaryModemIcon = icon;
+            settingsModel.append({
+                tText: qsTr("Cellular ") + (n + 1).toString(),
+                bText: qsTr("Offline"),
+                icon: "image://icon/network-cellular-offline-symbolic"
+            });
+            
+            modemDataChangeHandler(n)();
+            modemNetStatusChangeHandler(n)();
+            modemNetNameChangeHandler(n)();
+            modemNetStrengthChangeHandler(n)();
         }
     }
 
@@ -147,15 +161,15 @@ Item {
             if (btn.tText == qsTr("WiFi")) {
                 btn.bText = CutieWifiSettings.activeAccessPoint.data["Ssid"].toString();
                 if (wData.Strength > 80) {
-                    btn.icon = "icons/network-wireless-signal-excellent-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-excellent-symbolic"
                 } else if (wData.Strength > 50) {
-                    btn.icon = "icons/network-wireless-signal-good-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-good-symbolic"
                 } else if (wData.Strength > 30) {
-                    btn.icon = "icons/network-wireless-signal-ok-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-ok-symbolic"
                 } else if (wData.Strength > 10) {
-                    btn.icon = "icons/network-wireless-signal-low-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-low-symbolic"
                 } else {
-                    btn.icon = "icons/network-wireless-signal-none-symbolic.svg"
+                    btn.icon = "image://icon/network-wireless-signal-none-symbolic"
                 }
                 settingSheet.wifiIcon = btn.icon;
             }
@@ -172,9 +186,9 @@ Item {
                 let btn = settingsModel.get(i)
                 if (btn.tText == qsTr("WiFi")) {
                     btn.bText = qsTr("Offline");
-                    btn.icon = "icons/network-wireless-offline.svg";
+                    btn.icon = "image://icon/network-wireless-offline-symbolic";
+                    settingSheet.wifiIcon = btn.icon;
                 }
-                settingSheet.wifiIcon = btn.icon;
             }
         }
     }
@@ -185,9 +199,9 @@ Item {
                 let btn = settingsModel.get(i)
                 if (btn.tText == qsTr("WiFi")) {
                     btn.bText = qsTr("Disabled");
-                    btn.icon = "icons/network-wireless-offline.svg";
+                    btn.icon = "image://icon/network-wireless-offline-symbolic";
+                    settingSheet.wifiIcon = btn.icon;
                 }
-                settingSheet.wifiIcon = btn.icon;
             }
         }
     }
@@ -221,20 +235,23 @@ Item {
     Item {
         id: dragArea
         x: 0
-        y: parent.height - 10
-        height: 10
+        y: parent.height - height
+        height: 30
         width: parent.width
 
         MouseArea {
-            drag.target: parent; drag.axis: Drag.YAxis; drag.minimumY: - 10; drag.maximumY: Screen.height - 10
+            drag.target: parent
+            drag.axis: Drag.YAxis
+            drag.minimumY: -parent.height
+            drag.maximumY: Screen.height - parent.height
             enabled: settingsState.state != "closed"
             anchors.fill: parent
             propagateComposedEvents: true
 
             onPressed: {
                 settingsState.state = "closing";
-                settingContainer.opacity = parent.y + 10 / Screen.height;
-                settingContainer.y = parent.y + 10 - Screen.height;
+                settingContainer.opacity = (parent.y + parent.height) / Screen.height;
+                settingContainer.y = parent.y - Screen.height;
             }
 
             onReleased: {
@@ -249,8 +266,8 @@ Item {
 
             onPositionChanged: {
                 if (drag.active) {
-                    settingContainer.opacity = parent.y + 10 / Screen.height;
-                    settingContainer.y = parent.y + 10 - Screen.height;
+                    settingContainer.opacity = (parent.y + parent.height) / Screen.height;
+                    settingContainer.y = parent.y - Screen.height;
                 }
             }
         }
@@ -263,27 +280,30 @@ Item {
         width: parent.width
         z: 4
 
+        onOpacityChanged: {
+            if (opacity === 0
+                && settingsState.state === "closed"
+                && !lockscreen.visible) {
+                settingsState.height = setting.height;
+            }
+        }
+
         state: settingsState.state
 
         states: [
             State {
                 name: "opened"
                 PropertyChanges { target: settingContainer; y: 0; opacity: 1 }
-                PropertyChanges { target: dragArea; y: Screen.height - 10}
-                PropertyChanges { target: settingsState; height: Screen.height }
+                PropertyChanges { target: dragArea; y: Screen.height - dragArea.height }
             },
             State {
                 name: "closed"
-                PropertyChanges { target: settingContainer; y: -Screen.height; opacity: 0 }
             },
             State {
                 name: "opening"
-                PropertyChanges { target: settingContainer; y: -Screen.height }
             },
             State {
                 name: "closing"
-                PropertyChanges { target: settingContainer; y: 0 }
-                PropertyChanges { target: settingsState; height: Screen.height }
             }
         ]
 
@@ -298,8 +318,8 @@ Item {
             Transition {
                 to: "closed"
                 ParallelAnimation {
-                    NumberAnimation { target: settingContainer; properties: "y"; duration: 250; easing.type: Easing.InOutQuad; }
-                    NumberAnimation { target: settingContainer; properties: "opacity"; duration: 250; easing.type: Easing.InOutQuad; }
+                    NumberAnimation { target: settingContainer; properties: "y"; duration: 250; easing.type: Easing.InOutQuad; to: -(Screen.height + 1) }
+                    NumberAnimation { target: settingContainer; properties: "opacity"; duration: 250; easing.type: Easing.InOutQuad; to: 0}
                 }
             }
         ]
@@ -382,7 +402,7 @@ Item {
             ListElement {
                 bText: ""
                 tText: qsTr("WiFi")
-                icon: "icons/network-wireless-offline.svg"
+                icon: "image://icon/network-wireless-offline-symbolic"
             }
 
         }
@@ -441,12 +461,32 @@ Item {
                     }
 
                     Image {
+                        id: widgetIcon
                         anchors.fill: parent
                         anchors.margins: parent.width / 3
                         source: icon
                         sourceSize.height: 128
                         sourceSize.width: 128
                         fillMode: Image.PreserveAspectFit
+                        visible: false
+                    }
+
+                    Rectangle {
+                        id: widgetIconMask
+                        anchors.fill: widgetIcon
+                        visible: false
+                        color: Atmosphere.textColor
+                        opacity: 1.0
+
+                        Behavior on color {
+                            ColorAnimation { duration: 500; easing.type: Easing.InOutQuad }
+                        }
+                    }
+
+                    OpacityMask {
+                        source: widgetIconMask
+                        maskSource: widgetIcon
+                        anchors.fill: widgetIcon
                     }
 
                     MouseArea {
@@ -458,7 +498,7 @@ Item {
         }
 
         Rectangle {
-            id: iconMask
+            id: brightnessIconMask
             width: parent.height
             height: width
             visible: false
@@ -470,50 +510,45 @@ Item {
         }
 
         Image {
-            id: brightnessMin
+            id: brightnessIcon
+            width: brightnessSlider.height / 2
+            height: width
+            source: "image://icon/display-brightness-symbolic"
+            sourceSize.height: height*2
+            sourceSize.width: width*2
+            visible: false
+        }
+
+        OpacityMask {
+            id: brightnessIconMin
+            source: brightnessIconMask
+            maskSource: brightnessIcon
             width: brightnessSlider.height / 2
             height: width
             anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.leftMargin: 10
-            anchors.bottomMargin: 50
-            source: "icons/gpm-brightness-lcd-disabled.svg"
-            sourceSize.height: height*2
-            sourceSize.width: width*2
-            visible: false
+            anchors.bottomMargin: 60
+            opacity: 0.5
         }
 
         OpacityMask {
-            anchors.fill: brightnessMin
-            source: iconMask
-            maskSource: brightnessMin
-        }
-
-        Image {
-            id: brightnessMax
+            id: brightnessIconMax
+            source: brightnessIconMask
+            maskSource: brightnessIcon
             width: brightnessSlider.height / 2
             height: width
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin: 10
-            anchors.bottomMargin: 50
-            source: "icons/gpm-brightness-lcd"
-            sourceSize.height: height*2
-            sourceSize.width: width*2
-            visible: false
-        }
-
-        OpacityMask {
-            anchors.fill: brightnessMax
-            source: iconMask
-            maskSource: brightnessMax
+            anchors.bottomMargin: 60
         }
 
         CutieSlider {
             id: brightnessSlider
             value: "brightness" in quickStore.data ? quickStore.data["brightness"] : 1.0
-            anchors.left: brightnessMin.right
-            anchors.right: brightnessMax.left
+            anchors.left: brightnessIconMin.right
+            anchors.right: brightnessIconMax.left
             anchors.bottom: parent.bottom
             anchors.rightMargin: 10
             anchors.leftMargin: 10

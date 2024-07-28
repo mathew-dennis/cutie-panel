@@ -17,8 +17,7 @@ set(cutie-shell_SOURCES
 	src/quicksettings.h)
 
 qt6_add_resources(APP_RESOURCES 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/qml/qml.qrc
-	${CMAKE_CURRENT_SOURCE_DIR}/icons/icons.qrc)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/qml/qml.qrc)
 
 qt_add_dbus_interface(cutie-shell_SOURCES src/org.freedesktop.DBus.xml dbus_interface)
 

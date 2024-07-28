@@ -7,7 +7,7 @@ Item {
 	id: lockscreen
     visible: true
     width: Screen.width
-    height: Screen.height
+    height: Screen.height + 1
 
 	function timeChanged() {
         lockscreenTime.text = Qt.formatDateTime(new Date(), "HH:mm");
@@ -21,6 +21,7 @@ Item {
 		to: 0
 
 		onFinished: {
+            settingsState.height = setting.height;
 			lockscreen.visible = false;
 		}
 	}
