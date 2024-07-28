@@ -79,10 +79,10 @@ Item {
                 case CutieWlc.PowerPress:
                     console.log("Power button pressed: " + key);
                     break;
-                case CutieWlc.VOLUME_UP_PRESS:
+                case CutieWlc.VolumeupPress:
                     console.log("volume up button released: " + key);
                     break;
-               case CutieWlc.volumeuppress:
+               case CutieWlc.volumedownPress:
                     console.log("volume up button released: " + key);
                     break;
                 default:
