@@ -77,19 +77,13 @@ Item {
         onKey: (key) => {
             switch (key) {
                 case CutieWlc.PowerPress:
-                    console.log("Power button pressed");
+                    console.log("Power button pressed: " + key);
                     break;
                 case CutieWlc.PowerRelease:
-                    console.log("Power button released");
-                    break;
-                case CutieWlc.VolumeupPress:
-                    console.log("Volume up button pressed");
-                    break;
-                case CutieWlc.volume_up_press:
-                    console.log("Volume down button pressed");
+                    console.log("Power button released: " + key);
                     break;
                 default:
-                    console.log("Unknown key pressed:", key);
+                    console.log("Unknown key pressed: " + key);
                     break;
             }
 
@@ -98,11 +92,11 @@ Item {
                 return;
             }
 
-			if (key == CutieWlc.PowerPress && !outputPowerManager.mode) {
+            if (key === CutieWlc.PowerPress && !outputPowerManager.mode) {
                 outputPowerManager.mode = true;
                 ignoreRelease = true;
                 relockTimer.start();
-			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
+            } else if (key === CutieWlc.PowerRelease && outputPowerManager.mode) {
                 outputPowerManager.mode = false;
                 lockscreen.visible = true;
                 lockscreen.opacity = 1;
