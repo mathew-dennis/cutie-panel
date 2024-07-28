@@ -76,7 +76,7 @@ Item {
         
         onKey: (key) => {
             switch (key) {
-                case CutieWlc.PowerPress:
+                case CutieWlc.PowerPressb:
                     console.log("Power button pressed");
                     break;
                 case CutieWlc.PowerRelease:
