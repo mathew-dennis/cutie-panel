@@ -76,8 +76,22 @@ Item {
         property bool ignoreRelease: false
         
         onKey: (key) => {
+
+            volume = CutieVolume.volume
+            console.log( volume );
+
+            if (key == 2)
+                CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
+
+            if (key == 4) 
+                 CutieVolume.volume = Math.max(0.0, CutieVolume.volume - 0.1);
+
+                
             switch (key) {
-                case CutieWlc.PowerPress:
+                case 2:
+                    if (CutieVolume.volume >= 0.1 && CutieVolume.volume <= 0.9) {
+                    CutieVolume.volume;
+                    }
                     console.log("Power button pressed: " + key);
                     break;
                 case 2:
