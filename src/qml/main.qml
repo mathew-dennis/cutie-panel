@@ -1,5 +1,6 @@
 import QtQuick
 import Cutie.Wlc
+import Cutie.Volume
 
 Item {
     id: settingsState
@@ -80,7 +81,7 @@ Item {
                     console.log("Power button pressed: " + key);
                     break;
                 case 2:
-                    console.log("volume up button released: " + key);
+                    console.log(CutieVolume.volume);
                     break;
                case CutieWlc.volumedownPress:
                     console.log("volume up button released: " + key);
