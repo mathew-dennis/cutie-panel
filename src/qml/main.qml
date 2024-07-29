@@ -77,7 +77,7 @@ Item {
         
         onKey: (key) => {
 
-            console.log("current volume " CutieVolume.volume );
+            console.log(CutieVolume.volume);
 
             if (key == 2)
                 CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
