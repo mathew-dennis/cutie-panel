@@ -75,9 +75,6 @@ Item {
 
         property bool ignoreRelease: false
         
-        onKey: (key) => {
-
-            console.log(CutieVolume.volume);
 
             if (key == 2)
                 CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
@@ -85,24 +82,6 @@ Item {
             if (key == 4) 
                  CutieVolume.volume = Math.max(0.0, CutieVolume.volume - 0.1);
 
-                
-            switch (key) {
-                case 2:
-                    if (CutieVolume.volume >= 0.1 && CutieVolume.volume <= 0.9) {
-                    CutieVolume.volume;
-                    }
-                    console.log("Power button pressed: " + key);
-                    break;
-                case 2:
-                    console.log(CutieVolume.volume);
-                    break;
-               case CutieWlc.volumedownPress:
-                    console.log("volume up button released: " + key);
-                    break;
-                default:
-                    console.log("Unknown key pressed: " + key);
-                    break;
-            }
 
             if (ignoreRelease) {
                 ignoreRelease = false;
