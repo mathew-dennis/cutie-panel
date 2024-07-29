@@ -75,7 +75,8 @@ Item {
 
         property bool ignoreRelease: false
         
-
+        onKey: (key) => {
+            
             if (key == 2)
                 CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
 
