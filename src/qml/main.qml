@@ -83,7 +83,8 @@ Item {
             if (key == 4) 
                  CutieVolume.volume = Math.max(0.0, CutieVolume.volume - 0.1);
 
-
+            console.log("Key pressed: " + key )
+            
             if (ignoreRelease) {
                 ignoreRelease = false;
                 return;
