@@ -1,5 +1,6 @@
 import QtQuick
 import Cutie.Wlc
+import Cutie.Volume
 
 Item {
 	id: settingsState
@@ -75,6 +76,12 @@ Item {
 		property bool ignoreRelease: false
 		
 		onKey: (key) => {
+            		if (key == CutieWlc.VolumeUpPress)
+				CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
+
+           		if (key ==  CutieWlc.VolumeDownPress) 
+                 		CutieVolume.volume = Math.max(0.0, CutieVolume.volume - 0.1);
+
 			if (ignoreRelease) {
 				ignoreRelease = false;
 				return;
