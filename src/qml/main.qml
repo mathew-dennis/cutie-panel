@@ -77,7 +77,7 @@ Item {
         
         onKey: (key) => {
             
-            if (key === CutieWlc.VolumeUpPress)
+            if (key == 2)
                 CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
 
             if (key == 4) 
