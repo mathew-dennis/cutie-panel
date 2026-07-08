@@ -1,0 +1,6 @@
+# PAM service for the Cutie lockscreen's "password" unlock method.
+# Reuses the distro's standard auth/account stack (same as login, sudo),
+# so cutie-panel authenticates via the setuid unix_chkpwd helper and
+# needs no elevated privileges of its own.
+@include common-auth
+@include common-account
