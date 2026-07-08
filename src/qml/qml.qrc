@@ -2,6 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>Lockscreen.qml</file>
+        <file>PinPad.qml</file>
+        <file>PatternLock.qml</file>
         <file>StatusArea.qml</file>
         <file>SettingSheet.qml</file>
     </qresource>

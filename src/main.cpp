@@ -5,6 +5,7 @@
 #include <LayerShellQt/window.h>
 
 #include "quicksettings.h"
+#include "lockauth.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,9 @@ int main(int argc, char *argv[])
 	QuickSettings *quicksettings = new QuickSettings(view.engine());
 	view.engine()->rootContext()->setContextProperty("quicksettings",
 							 quicksettings);
+
+	LockAuth *lockAuth = new LockAuth(&app);
+	view.engine()->rootContext()->setContextProperty("lockAuth", lockAuth);
 
 	view.setSource(QUrl("qrc:/main.qml"));
 	view.setColor(QColor(Qt::transparent));
