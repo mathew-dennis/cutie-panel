@@ -99,7 +99,7 @@ LockAuth::LockAuth(QObject *parent)
 		&LockAuth::onPamFinished);
 	m_pamThread.start();
 
-	m_method = m_settings.value("method", "password").toString();
+	m_method = m_settings.value("method", "pin").toString();
 
 	connect(&m_lockoutTimer, &QTimer::timeout, this,
 		&LockAuth::onLockoutTick);
