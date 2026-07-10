@@ -1,4 +1,5 @@
 import Cutie
+import Cutie.ScreenLock
 import QtQuick
 import QtQuick.Controls
 import QtMultimedia
@@ -9,6 +10,10 @@ Item {
     visible: true
     width: Screen.width
     height: Screen.height + 1
+
+	CutieScreenLock {
+		id: lockAuth
+	}
 
 	function timeChanged() {
         lockscreenTime.text = Qt.formatDateTime(new Date(), "HH:mm");

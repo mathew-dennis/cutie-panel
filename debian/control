@@ -12,7 +12,7 @@ Build-Depends: pkg-kde-tools,
                qt6-quickcontrols2-dev,
                liblayershellqtinterface-dev,
                libudev-dev,
-               libpam0g-dev
+               libcutiescreenlock-dev
 Standards-Version: 4.5.1
 
 Package: cutie-panel
@@ -21,7 +21,8 @@ Multi-Arch: foreign
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         libpam-runtime,
+         libcutiescreenlock,
+         qml6-module-cutiescreenlock,
          qml6-module-cutie,
          qml6-module-cutiemodem,
          qml6-module-cutienetworking,
