@@ -182,7 +182,6 @@ Item {
 			id: authCard
 			anchors.bottom: parent.bottom          
 			anchors.bottomMargin: 40             
-			anchors.horizontalCenter: parent.horizontalCenter 
 			spacing: 24
 
 			CutieLabel {
