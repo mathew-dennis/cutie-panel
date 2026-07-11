@@ -180,13 +180,9 @@ Item {
 
 		Column {
 			id: authCard
-			// REMOVE THIS: anchors.centerIn: parent
-			
-			// ADD THESE THREE LINES:
-			anchors.bottom: parent.bottom          // Sticks the column to the bottom edge
-			anchors.bottomMargin: 80               // Pushes it up slightly (adjust this padding as you like)
-			anchors.horizontalCenter: parent.horizontalCenter // Keeps everything centered horizontally
-			
+			anchors.bottom: parent.bottom          
+			anchors.bottomMargin: 40             
+			anchors.horizontalCenter: parent.horizontalCenter 
 			spacing: 24
 
 			CutieLabel {
