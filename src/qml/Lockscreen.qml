@@ -99,6 +99,7 @@ Item {
 			anchors.fill: parent
 
 			onReleased: {
+				lockscreen.opacity = 1
 				if (parent.y < - 20) lockscreen.requestUnlock();
 				else closeAnim.start();
 				parent.y = 0;
