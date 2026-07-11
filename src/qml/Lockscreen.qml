@@ -180,7 +180,6 @@ Item {
 
 		Column {
 			id: authCard
-			anchors.horizontalCenter: parent.horizontalCenter
 			spacing: 24
 			spacing: 24
 
