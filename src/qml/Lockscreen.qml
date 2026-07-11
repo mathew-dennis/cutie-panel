@@ -27,7 +27,7 @@ Item {
 			openAnim.start();
 			return;
 		}
-		lockscreen.opacity = 1
+		closeAnim.start();
 		authOverlay.visible = true;
 		authOverlay.opacity = 1;
 		if (lockAuth.method === "password")
