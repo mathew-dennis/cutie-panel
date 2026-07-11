@@ -23,10 +23,10 @@ Item {
 	// Swiping up used to unlock directly. Now it only unlocks directly when
 	// no credential is configured; otherwise it reveals the auth sheet.
 	function requestUnlock() {
-		if (lockAuth.method === "none") {
+		
 			openAnim.start();
 			return;
-		}
+		
 		closeAnim.start();
 		authOverlay.visible = true;
 		authOverlay.opacity = 1;
@@ -181,7 +181,7 @@ Item {
 		Column {
 			id: authCard
 			anchors.bottom: parent.bottom          
-			anchors.bottomMargin: 40             
+			anchors.bottomMargin: 40  
 			spacing: 24
 
 			CutieLabel {
