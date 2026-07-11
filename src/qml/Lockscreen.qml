@@ -27,6 +27,7 @@ Item {
 			openAnim.start();
 			return;
 		}
+		lockscreen.opacity = 1
 		authOverlay.visible = true;
 		authOverlay.opacity = 1;
 		if (lockAuth.method === "password")
@@ -99,7 +100,6 @@ Item {
 			anchors.fill: parent
 
 			onReleased: {
-				lockscreen.opacity = 1
 				if (parent.y < - 20) lockscreen.requestUnlock();
 				else closeAnim.start();
 				parent.y = 0;
