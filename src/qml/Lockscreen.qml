@@ -180,8 +180,6 @@ Item {
 
 		Column {
 			id: authCard
-			anchors.bottom: parent.bottom
-			anchors.bottomMargin: 80 
 			anchors.horizontalCenter: parent.horizontalCenter
 			spacing: 24
 			spacing: 24
