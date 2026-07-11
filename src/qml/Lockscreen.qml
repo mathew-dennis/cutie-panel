@@ -182,6 +182,7 @@ Item {
 			id: authCard
 			spacing: 24
 			spacing: 24
+			anchors.fill: parent
 
 			CutieLabel {
 				anchors.horizontalCenter: parent.horizontalCenter
