@@ -180,9 +180,8 @@ Item {
 
 		Column {
 			id: authCard
+			anchors.centerIn: parent
 			spacing: 24
-			spacing: 24
-			anchors.fill: parent
 
 			CutieLabel {
 				anchors.horizontalCenter: parent.horizontalCenter
