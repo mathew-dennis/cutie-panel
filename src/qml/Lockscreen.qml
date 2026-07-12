@@ -27,7 +27,7 @@ Item {
 			openAnim.start();
 			return;
 		}
-		closeAnim.start();
+		// closeAnim.start();
 		authOverlay.visible = true;
 		authOverlay.opacity = 1;
 		if (lockAuth.method === "password")
