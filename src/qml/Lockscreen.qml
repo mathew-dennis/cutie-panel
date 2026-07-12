@@ -27,7 +27,7 @@ Item {
 			openAnim.start();
 			return;
 		}
-		// closeAnim.start();
+		closeAnim.start();
 		authOverlay.visible = true;
 		authOverlay.opacity = 1;
 		if (lockAuth.method === "password")
@@ -35,12 +35,10 @@ Item {
 	}
 
 	function onAuthSuccess() {
+        unlockAnim.start();
 		pinPad.reset();
 		patternLock.reset();
 		passwordField.text = "";
-		authOverlay.visible = false;
-		authOverlay.opacity = 0;
-		openAnim.start();
 	}
 
 	function onAuthFailure() {
@@ -77,6 +75,26 @@ Item {
 		property: "opacity"
 		to: 1
 	}
+    
+    NumberAnimation {
+		id: unlockAnim
+		target: lockscreen
+		property: "opacity"
+		to: 0
+
+		onFinished: {
+            authOverlay.visible = false;
+		    authOverlay.opacity = 0;
+		}
+	}
+
+	SequentialAnimation {
+			id: shakeAnim
+			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: -20; duration: 50 }
+			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: 20; duration: 50 }
+			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: -12; duration: 50 }
+			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: 0; duration: 50 }
+		}
 
     Image {
         id: wallpaper
@@ -169,14 +187,6 @@ Item {
 
 		// Eat clicks so they don't fall through to the swipe MouseArea.
 		MouseArea { anchors.fill: parent }
-
-		SequentialAnimation {
-			id: shakeAnim
-			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: -20; duration: 50 }
-			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: 20; duration: 50 }
-			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: -12; duration: 50 }
-			NumberAnimation { target: authCard; property: "anchors.horizontalCenterOffset"; to: 0; duration: 50 }
-		}
 
 		Column {
 			id: authCard
