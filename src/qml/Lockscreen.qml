@@ -85,6 +85,8 @@ Item {
 		onFinished: {
             authOverlay.visible = false;
 		    authOverlay.opacity = 0;
+            settingsState.height = setting.height;
+			lockscreen.visible = false
 		}
 	}
 
