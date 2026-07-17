@@ -139,5 +139,4 @@ Item {
 	Lockscreen { id: lockscreen }
 	SettingSheet { id: settingSheet }
 	StatusArea { id: setting }
-      }
 	}
