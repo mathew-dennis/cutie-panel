@@ -87,7 +87,7 @@ Item {
 				volumeSliderOverlay.show();
 			}
 
-			if (!longPressTimer.running)
+			if (longPressTimer.running)
 				longPressTimer.stop();
 
 			if (ignoreRelease) {
