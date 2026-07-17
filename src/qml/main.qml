@@ -86,6 +86,9 @@ Item {
 				volumeSliderOverlay.show();
 			}
 
+			if (!longPressTimer.running)
+				longPressTimer.stop;
+
 			if (ignoreRelease) {
 				ignoreRelease = false;
 				return;
@@ -95,6 +98,10 @@ Item {
 				outputPowerManager.mode = true;
 				ignoreRelease = true;
 				relockTimer.start();
+
+			} else if (key == CutieWlc.PowerPress && outputPowerManager.mode) {
+				longPressTimer.start();
+
 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
 				outputPowerManager.mode = false;
 				lockscreen.visible = true;
@@ -110,6 +117,14 @@ Item {
 	}
 
 	Timer {
+		id: longPressTimer
+		interval: 5000
+		onTriggered: {
+			powerMenu.show();
+			ignoreRelease = true;
+		}
+	}
+		Timer {
 		id: relockTimer
 		interval: 5000
 		onTriggered: {
@@ -121,5 +136,6 @@ Item {
 	Lockscreen { id: lockscreen }
 	SettingSheet { id: settingSheet }
 	StatusArea { id: setting }
+	PowerMenu { id: powerMenu }
 	VolumeSliderOverlay { id: volumeSliderOverlay }
 }
