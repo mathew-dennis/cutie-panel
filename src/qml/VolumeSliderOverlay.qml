@@ -8,7 +8,7 @@ Item {
 
 	width: 64
 	height: 220
-	anchors.left: parent.left
+	anchors.right: screen.right
 	anchors.leftMargin: 14
 	anchors.verticalCenter: parent.verticalCenter
 	opacity: 0
