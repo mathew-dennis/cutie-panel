@@ -4,7 +4,9 @@ import Cutie
 Item {
 	id: powerMenu
 
-	anchors.fill: parent
+    visible: true
+    width: Screen.width
+    height: Screen.height + 1
 	opacity: 0
 	visible: opacity > 0
 	z: 1000
