@@ -10,6 +10,11 @@ Item {
 	z: 1000
 
 	function show() {
+		// The panel surface is shrunk to just the status-bar strip while
+		// unlocked (see Lockscreen.qml); grow it back so this full-screen
+		// menu has room to render.
+		if (!lockscreen.visible)
+			settingsState.height = Screen.height + 1;
 		opacity = 1;
 	}
 
@@ -18,7 +23,16 @@ Item {
 	}
 
 	Behavior on opacity {
-		NumberAnimation { duration: 180; easing.type: Easing.InOutQuad }
+		NumberAnimation {
+			duration: 180
+			easing.type: Easing.InOutQuad
+			onRunningChanged: {
+				// Shrink the surface back down once we've fully faded out,
+				// but only if nothing else (e.g. the lockscreen) needs it.
+				if (!running && powerMenu.opacity === 0 && !lockscreen.visible)
+					settingsState.height = setting.height;
+			}
+		}
 	}
 
 	// Dimmed backdrop; tapping it cancels
