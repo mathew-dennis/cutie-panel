@@ -7,7 +7,6 @@ Item {
     height: Screen.height + 1
 	opacity: 0
 	visible: opacity > 0
-	z: 1000
 
 	function show() {
 		// The panel surface is shrunk to just the status-bar strip while
