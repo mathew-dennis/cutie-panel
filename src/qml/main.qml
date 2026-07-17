@@ -87,7 +87,7 @@ Item {
 			}
 
 			if (!longPressTimer.running)
-				longPressTimer.stop;
+				longPressTimer.stop();
 
 			if (ignoreRelease) {
 				ignoreRelease = false;
@@ -118,7 +118,7 @@ Item {
 
 	Timer {
 		id: longPressTimer
-		interval: 5000
+		interval: 500
 		onTriggered: {
 			powerMenu.show();
 			ignoreRelease = true;
