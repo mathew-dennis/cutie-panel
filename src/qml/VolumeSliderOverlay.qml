@@ -8,20 +8,34 @@ Item {
 
 	width: 64
 	height: 220
-	anchors.right: screen.right
-	anchors.leftMargin: 14
+	anchors.right: parent.right
+	anchors.rightMargin: 14
 	anchors.verticalCenter: parent.verticalCenter
 	opacity: 0
 	visible: opacity > 0
 
 	// Call this whenever a volume key is pressed
 	function show() {
+		// The panel surface is shrunk to just the status-bar strip while
+		// unlocked (see Lockscreen.qml); grow it back so this popup, which
+		// is vertically centered on the full screen, has room to render.
+		if (!lockscreen.visible)
+			settingsState.height = Screen.height + 1;
 		hideTimer.restart();
 		opacity = 1;
 	}
 
 	Behavior on opacity {
-		NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+		NumberAnimation {
+			duration: 200
+			easing.type: Easing.InOutQuad
+			onRunningChanged: {
+				// Shrink the surface back down once we've fully faded out,
+				// but only if nothing else (e.g. the lockscreen) needs it.
+				if (!running && volumeSliderOverlay.opacity === 0 && !lockscreen.visible)
+					settingsState.height = setting.height;
+			}
+		}
 	}
 
 	Timer {
