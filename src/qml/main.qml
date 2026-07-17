@@ -7,6 +7,7 @@ Item {
 
 	width: Screen.width
 	height: Screen.height + 1
+    property bool ignoreRelease: false
 
 	state: "closed" 
 	states: [
@@ -73,7 +74,7 @@ Item {
 	CutieWlc {
 		id: cutieWlc
 
-		property bool ignoreRelease: false
+		
 		
 		onKey: (key) => {
             if (key == CutieWlc.VolumeUpPress) {
