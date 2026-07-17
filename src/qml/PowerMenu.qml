@@ -3,8 +3,6 @@ import Cutie
 
 Item {
 	id: powerMenu
-
-    visible: true
     width: Screen.width
     height: Screen.height + 1
 	opacity: 0
