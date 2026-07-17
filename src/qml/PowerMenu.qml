@@ -53,7 +53,7 @@ Item {
 		height: column.implicitHeight + 32
 		anchors.centerIn: parent
 		radius: 24
-		color: Atmosphere.backgroundColor
+		color: Atmosphere.primaryColor
 		border.width: 1
 		border.color: Atmosphere.textColor
 
