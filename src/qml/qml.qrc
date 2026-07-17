@@ -5,5 +5,6 @@
         <file>StatusArea.qml</file>
         <file>SettingSheet.qml</file>
         <file>VolumeSliderOverlay.qml</file>
+         <file>PowerMenu.qml</file>   
     </qresource>
 </RCC>
