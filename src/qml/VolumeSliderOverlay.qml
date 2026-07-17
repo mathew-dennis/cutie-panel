@@ -48,7 +48,7 @@ Item {
 		id: box
 		anchors.fill: parent
 		radius: 22
-		color: Atmosphere.backgroundColor
+		color: Atmosphere.primaryColor
 		opacity: 0.92
 		border.width: 1
 		border.color: Atmosphere.textColor
