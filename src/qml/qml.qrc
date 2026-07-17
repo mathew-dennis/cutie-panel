@@ -4,5 +4,6 @@
         <file>Lockscreen.qml</file>
         <file>StatusArea.qml</file>
         <file>SettingSheet.qml</file>
+        <file>VolumeSliderOverlay.qml</file>
     </qresource>
 </RCC>

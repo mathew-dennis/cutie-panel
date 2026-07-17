@@ -76,11 +76,15 @@ Item {
 		property bool ignoreRelease: false
 		
 		onKey: (key) => {
-            		if (key == CutieWlc.VolumeUpPress)
+            if (key == CutieWlc.VolumeUpPress) {
 				CutieVolume.volume = Math.min(1.0, CutieVolume.volume + 0.1);
+				volumeSliderOverlay.show();
+			}
 
-           		if (key ==  CutieWlc.VolumeDownPress) 
+           	if (key ==  CutieWlc.VolumeDownPress) {
                  		CutieVolume.volume = Math.max(0.0, CutieVolume.volume - 0.1);
+				volumeSliderOverlay.show();
+			}
 
 			if (ignoreRelease) {
 				ignoreRelease = false;
@@ -117,4 +121,5 @@ Item {
 	Lockscreen { id: lockscreen }
 	SettingSheet { id: settingSheet }
 	StatusArea { id: setting }
+	VolumeSliderOverlay { id: volumeSliderOverlay }
 }
