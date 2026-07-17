@@ -133,9 +133,11 @@ Item {
 				outputPowerManager.mode = false;
 		}
 	}
+
     PowerMenu { id: powerMenu }
 	VolumeSliderOverlay { id: volumeSliderOverlay }
 	Lockscreen { id: lockscreen }
 	SettingSheet { id: settingSheet }
 	StatusArea { id: setting }
+      }
 	}
