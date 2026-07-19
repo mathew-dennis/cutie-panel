@@ -17,6 +17,7 @@ Item {
 
 	function show() {
 		menuState = "initial";
+		buttonsArea.apply("initial", false);
 		// The panel surface is shrunk to just the status-bar strip while
 		// unlocked (see Lockscreen.qml); grow it back so this full-screen
 		// menu has room to render.
@@ -66,9 +67,37 @@ Item {
 		height: diameter + 28
 		visible: opacity > 0.01
 
-		Behavior on diameter { NumberAnimation { duration: 220; easing.type: Easing.OutBack } }
-		Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutBack } }
-		Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.InOutQuad } }
+		// Animates to a new position/size/opacity, moving into place first
+		// and only growing/shrinking once the move has finished.
+		function animateTo(newX, newDiameter, newOpacity) {
+			moveGrowAnim.stop();
+			moveGrowAnim.targetX = newX;
+			moveGrowAnim.targetDiameter = newDiameter;
+			moveGrowAnim.targetOpacity = newOpacity;
+			moveGrowAnim.start();
+		}
+
+		// Jumps straight to a position/size/opacity with no animation,
+		// used when the menu is (re)opened.
+		function snapTo(newX, newDiameter, newOpacity) {
+			moveGrowAnim.stop();
+			x = newX;
+			diameter = newDiameter;
+			opacity = newOpacity;
+		}
+
+		SequentialAnimation {
+			id: moveGrowAnim
+			property real targetX: btn.x
+			property real targetDiameter: btn.diameter
+			property real targetOpacity: btn.opacity
+
+			ParallelAnimation {
+				NumberAnimation { target: btn; property: "x"; to: moveGrowAnim.targetX; duration: 260; easing.type: Easing.InOutCubic }
+				NumberAnimation { target: btn; property: "opacity"; to: moveGrowAnim.targetOpacity; duration: 220; easing.type: Easing.InOutCubic }
+			}
+			NumberAnimation { target: btn; property: "diameter"; to: moveGrowAnim.targetDiameter; duration: 220; easing.type: Easing.InOutCubic }
+		}
 
 		Rectangle {
 			id: circle
@@ -112,23 +141,55 @@ Item {
 		width: 320
 		height: 180
 		anchors.centerIn: parent
+		// Buttons keep their vertical center fixed as they grow/shrink.
+		readonly property real rowCenterY: height / 2 - 14
 
 		readonly property real normalSize: 84
 		readonly property real bigSize: 112
 		readonly property real sideSize: 64
 		readonly property real gap: 26
 		readonly property real pairStartX: width / 2 - (normalSize * 2 + gap) / 2
+		readonly property real centerBigX: width / 2 - bigSize / 2
+		readonly property real recoveryX: centerBigX - gap - sideSize
+		readonly property real bootloaderX: centerBigX + bigSize + gap
+
+		// Drives every button to the correct position/size/opacity for a
+		// given menu state; used both to animate on click and to snap
+		// instantly when the menu (re)opens.
+		function apply(state, animated) {
+			const rebootX = state === "rebootExpanded" ? centerBigX : pairStartX;
+			const rebootD = state === "rebootExpanded" ? bigSize : normalSize;
+			const rebootO = state === "powerConfirm" ? 0 : 1;
+			const rebootLabel = state === "rebootExpanded" ? qsTr("Tap to reboot") : qsTr("Restart");
+
+			const powerX = state === "powerConfirm" ? centerBigX : pairStartX + normalSize + gap;
+			const powerD = state === "powerConfirm" ? bigSize : normalSize;
+			const powerO = state === "rebootExpanded" ? 0 : 1;
+			const powerLabel = state === "powerConfirm" ? qsTr("Tap to power off") : qsTr("Power off");
+
+			const sideO = state === "rebootExpanded" ? 1 : 0;
+
+			rebootBtn.label = rebootLabel;
+			powerBtn.label = powerLabel;
+
+			if (animated) {
+				rebootBtn.animateTo(rebootX, rebootD, rebootO);
+				powerBtn.animateTo(powerX, powerD, powerO);
+				recoveryBtn.animateTo(recoveryX, sideSize, sideO);
+				bootloaderBtn.animateTo(bootloaderX, sideSize, sideO);
+			} else {
+				rebootBtn.snapTo(rebootX, rebootD, rebootO);
+				powerBtn.snapTo(powerX, powerD, powerO);
+				recoveryBtn.snapTo(recoveryX, sideSize, sideO);
+				bootloaderBtn.snapTo(bootloaderX, sideSize, sideO);
+			}
+		}
 
 		MenuCircleButton {
 			id: rebootBtn
-			diameter: powerMenu.menuState === "rebootExpanded" ? buttonsArea.bigSize : buttonsArea.normalSize
 			iconName: "image://icon/system-reboot-symbolic"
-			label: powerMenu.menuState === "rebootExpanded" ? qsTr("Tap to reboot") : qsTr("Restart")
-			opacity: powerMenu.menuState === "powerConfirm" ? 0 : 1
-			x: powerMenu.menuState === "rebootExpanded"
-			   ? buttonsArea.width / 2 - diameter / 2
-			   : buttonsArea.pairStartX
-			y: buttonsArea.height / 2 - diameter / 2 - 14
+			label: qsTr("Restart")
+			y: buttonsArea.rowCenterY - diameter / 2
 
 			onClicked: {
 				if (powerMenu.menuState === "initial") {
@@ -142,14 +203,9 @@ Item {
 
 		MenuCircleButton {
 			id: powerBtn
-			diameter: powerMenu.menuState === "powerConfirm" ? buttonsArea.bigSize : buttonsArea.normalSize
 			iconName: "image://icon/system-shutdown-symbolic"
-			label: powerMenu.menuState === "powerConfirm" ? qsTr("Tap to power off") : qsTr("Power off")
-			opacity: powerMenu.menuState === "rebootExpanded" ? 0 : 1
-			x: powerMenu.menuState === "powerConfirm"
-			   ? buttonsArea.width / 2 - diameter / 2
-			   : buttonsArea.pairStartX + buttonsArea.normalSize + buttonsArea.gap
-			y: buttonsArea.height / 2 - diameter / 2 - 14
+			label: qsTr("Power off")
+			y: buttonsArea.rowCenterY - diameter / 2
 
 			onClicked: {
 				if (powerMenu.menuState === "initial") {
@@ -163,12 +219,9 @@ Item {
 
 		MenuCircleButton {
 			id: recoveryBtn
-			diameter: buttonsArea.sideSize
 			iconName: "image://icon/drive-harddisk-symbolic"
 			label: qsTr("Recovery")
-			opacity: powerMenu.menuState === "rebootExpanded" ? 1 : 0
-			x: buttonsArea.width / 2 - buttonsArea.bigSize / 2 - buttonsArea.gap - diameter
-			y: buttonsArea.height / 2 - diameter / 2 - 14
+			y: buttonsArea.rowCenterY - diameter / 2
 
 			onClicked: {
 				powerMenu.hide();
@@ -178,16 +231,20 @@ Item {
 
 		MenuCircleButton {
 			id: bootloaderBtn
-			diameter: buttonsArea.sideSize
 			iconName: "image://icon/media-flash-symbolic"
 			label: qsTr("Bootloader")
-			opacity: powerMenu.menuState === "rebootExpanded" ? 1 : 0
-			x: buttonsArea.width / 2 + buttonsArea.bigSize / 2 + buttonsArea.gap
-			y: buttonsArea.height / 2 - diameter / 2 - 14
+			y: buttonsArea.rowCenterY - diameter / 2
 
 			onClicked: {
 				powerMenu.hide();
 				quicksettings.RebootToBootloader();
+			}
+		}
+
+		Connections {
+			target: powerMenu
+			function onMenuStateChanged() {
+				buttonsArea.apply(powerMenu.menuState, true);
 			}
 		}
 	}
