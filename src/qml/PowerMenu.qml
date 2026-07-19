@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Effects
 import Cutie
 
 Item {
@@ -88,7 +87,6 @@ Item {
 				source: btn.iconName
 				sourceSize.width: width * 2
 				sourceSize.height: height * 2
-				visible: false
 			}
 
 			MouseArea {
