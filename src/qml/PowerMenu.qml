@@ -139,8 +139,8 @@ Item {
 		anchors.centerIn: parent
 		color: Atmosphere.primaryColor
 		opacity: 0.92
-		border.width: 1
-		border.color: Qt.rgba(1, 1, 1, 0.15)
+        border.width: 1
+		border.color: Atmosphere.textColor
 
 		Behavior on color {
 			ColorAnimation { duration: 500; easing.type: Easing.InOutQuad }
