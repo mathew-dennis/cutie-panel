@@ -158,37 +158,21 @@ Item {
 		}
 	}
 
-	// Card containing the whole menu, with a frosted-glass blur of the
-	// real wallpaper behind it (like the very first prototype's card).
+	// Card containing the whole menu, tinted with the theme's primary color
+	// instead of blurring the wallpaper (simpler, no extra render pass).
 	Rectangle {
 		id: card
 		width: buttonsArea.width + 48
 		height: buttonsArea.height + 48
 		radius: 32
 		anchors.centerIn: parent
-		color: "transparent"
+		color: Atmosphere.primaryColor
+		opacity: 0.92
 		border.width: 1
 		border.color: Qt.rgba(1, 1, 1, 0.15)
-		clip: true
 
-		ShaderEffectSource {
-			id: blurSource
-			sourceItem: lockscreen.wallpaper
-			sourceRect: Qt.rect(card.x, card.y, card.width, card.height)
-			live: true
-			hideSource: false
-		}
-
-		FastBlur {
-			anchors.fill: parent
-			source: blurSource
-			radius: 48
-		}
-
-		Rectangle {
-			// Frosted tint over the blurred wallpaper
-			anchors.fill: parent
-			color: Atmosphere.secondaryAlphaColor
+		Behavior on color {
+			ColorAnimation { duration: 500; easing.type: Easing.InOutQuad }
 		}
 	}
 
