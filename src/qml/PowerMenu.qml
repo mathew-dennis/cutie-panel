@@ -1,4 +1,5 @@
 import QtQuick
+import Qt5Compat.GraphicalEffects
 import Cutie
 
 Item {
@@ -116,6 +117,27 @@ Item {
 				source: btn.iconName
 				sourceSize.width: width * 2
 				sourceSize.height: height * 2
+				visible: false
+			}
+
+			// Same technique StatusArea.qml uses for the wifi/modem/battery
+			// icons: mask a flat color rect with the icon's alpha, so it
+			// automatically follows the theme (black on light, white on dark).
+			Rectangle {
+				id: iconMask
+				anchors.fill: icon
+				visible: false
+				color: Atmosphere.textColor
+
+				Behavior on color {
+					ColorAnimation { duration: 500; easing.type: Easing.InOutQuad }
+				}
+			}
+
+			OpacityMask {
+				anchors.fill: icon
+				source: iconMask
+				maskSource: icon
 			}
 
 			MouseArea {
@@ -136,11 +158,45 @@ Item {
 		}
 	}
 
+	// Card containing the whole menu, with a frosted-glass blur of the
+	// real wallpaper behind it (like the very first prototype's card).
+	Rectangle {
+		id: card
+		width: buttonsArea.width + 48
+		height: buttonsArea.height + 48
+		radius: 32
+		anchors.centerIn: parent
+		color: "transparent"
+		border.width: 1
+		border.color: Qt.rgba(1, 1, 1, 0.15)
+		clip: true
+
+		ShaderEffectSource {
+			id: blurSource
+			sourceItem: lockscreen.wallpaper
+			sourceRect: Qt.rect(card.x, card.y, card.width, card.height)
+			live: true
+			hideSource: false
+		}
+
+		FastBlur {
+			anchors.fill: parent
+			source: blurSource
+			radius: 48
+		}
+
+		Rectangle {
+			// Frosted tint over the blurred wallpaper
+			anchors.fill: parent
+			color: Atmosphere.secondaryAlphaColor
+		}
+	}
+
 	Item {
 		id: buttonsArea
 		width: 320
 		height: 180
-		anchors.centerIn: parent
+		anchors.centerIn: card
 		// Buttons keep their vertical center fixed as they grow/shrink.
 		readonly property real rowCenterY: height / 2 - 14
 
