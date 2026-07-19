@@ -91,13 +91,6 @@ Item {
 				visible: false
 			}
 
-			MultiEffect {
-				anchors.fill: icon
-				source: icon
-				colorization: 1.0
-				colorizationColor: Atmosphere.textColor
-			}
-
 			MouseArea {
 				anchors.fill: parent
 				onClicked: btn.clicked()
