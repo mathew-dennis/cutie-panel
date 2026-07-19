@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Cutie
 
 Item {
@@ -7,8 +8,16 @@ Item {
     height: Screen.height + 1
 	opacity: 0
 	visible: opacity > 0
+	z: 1000
+
+	// "initial"        -> Restart + Power off side by side
+	// "powerConfirm"   -> Power off grown & centered, Restart hidden
+	// "rebootExpanded" -> Restart grown & centered, Power off hidden,
+	//                     Recovery + Bootloader appear on either side
+	property string menuState: "initial"
 
 	function show() {
+		menuState = "initial";
 		// The panel surface is shrunk to just the status-bar strip while
 		// unlocked (see Lockscreen.qml); grow it back so this full-screen
 		// menu has room to render.
@@ -46,102 +55,148 @@ Item {
 		}
 	}
 
-	Rectangle {
-		id: card
-		width: Math.min(parent.width * 0.72, 320)
-		height: column.implicitHeight + 32
-		anchors.centerIn: parent
-		radius: 24
-		color: Atmosphere.primaryColor
-		border.width: 1
-		border.color: Atmosphere.textColor
+	// Reusable circular icon + label button
+	component MenuCircleButton: Item {
+		id: btn
+		property real diameter: 84
+		property string label: ""
+		property string iconName: ""
+		signal clicked()
 
-		// Absorb clicks so they don't fall through to the backdrop
-		MouseArea {
-			anchors.fill: parent
+		width: diameter
+		height: diameter + 28
+		visible: opacity > 0.01
+
+		Behavior on diameter { NumberAnimation { duration: 220; easing.type: Easing.OutBack } }
+		Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutBack } }
+		Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.InOutQuad } }
+
+		Rectangle {
+			id: circle
+			width: btn.diameter
+			height: btn.diameter
+			radius: width / 2
+			color: Atmosphere.secondaryAlphaColor
+			border.width: 1.5
+			border.color: Atmosphere.textColor
+
+			Image {
+				id: icon
+				anchors.centerIn: parent
+				width: circle.width * 0.4
+				height: width
+				source: btn.iconName
+				sourceSize.width: width * 2
+				sourceSize.height: height * 2
+				visible: false
+			}
+
+			MultiEffect {
+				anchors.fill: icon
+				source: icon
+				colorization: 1.0
+				colorizationColor: Atmosphere.textColor
+			}
+
+			MouseArea {
+				anchors.fill: parent
+				onClicked: btn.clicked()
+			}
 		}
 
-		Column {
-			id: column
-			anchors.centerIn: parent
-			width: parent.width - 32
-			spacing: 10
+		Text {
+			anchors.top: circle.bottom
+			anchors.topMargin: 8
+			anchors.horizontalCenter: circle.horizontalCenter
+			width: Math.max(btn.diameter + 50, 96)
+			text: btn.label
+			color: Atmosphere.textColor
+			font.pixelSize: 12
+			horizontalAlignment: Text.AlignHCenter
+		}
+	}
 
-			Text {
-				width: parent.width
-				text: qsTr("Power")
-				color: Atmosphere.textColor
-				font.pixelSize: 16
-				font.bold: true
-				horizontalAlignment: Text.AlignHCenter
-				bottomPadding: 6
-			}
+	Item {
+		id: buttonsArea
+		width: 320
+		height: 180
+		anchors.centerIn: parent
 
-			Rectangle {
-				width: parent.width
-				height: 46
-				radius: 14
-				color: Atmosphere.accentColor
+		readonly property real normalSize: 84
+		readonly property real bigSize: 112
+		readonly property real sideSize: 64
+		readonly property real gap: 26
+		readonly property real pairStartX: width / 2 - (normalSize * 2 + gap) / 2
 
-				Text {
-					anchors.centerIn: parent
-					text: qsTr("Restart")
-					color: "white"
-					font.pixelSize: 15
-					font.bold: true
-				}
+		MenuCircleButton {
+			id: rebootBtn
+			diameter: powerMenu.menuState === "rebootExpanded" ? buttonsArea.bigSize : buttonsArea.normalSize
+			iconName: "image://icon/system-reboot-symbolic"
+			label: powerMenu.menuState === "rebootExpanded" ? qsTr("Tap to reboot") : qsTr("Restart")
+			opacity: powerMenu.menuState === "powerConfirm" ? 0 : 1
+			x: powerMenu.menuState === "rebootExpanded"
+			   ? buttonsArea.width / 2 - diameter / 2
+			   : buttonsArea.pairStartX
+			y: buttonsArea.height / 2 - diameter / 2 - 14
 
-				MouseArea {
-					anchors.fill: parent
-					onClicked: {
-						powerMenu.hide();
-						quicksettings.Reboot();
-					}
-				}
-			}
-
-			Rectangle {
-				width: parent.width
-				height: 46
-				radius: 14
-				color: "#d64545"
-
-				Text {
-					anchors.centerIn: parent
-					text: qsTr("Power off")
-					color: "white"
-					font.pixelSize: 15
-					font.bold: true
-				}
-
-				MouseArea {
-					anchors.fill: parent
-					onClicked: {
-						powerMenu.hide();
-						quicksettings.PowerOff();
-					}
+			onClicked: {
+				if (powerMenu.menuState === "initial") {
+					powerMenu.menuState = "rebootExpanded";
+				} else if (powerMenu.menuState === "rebootExpanded") {
+					powerMenu.hide();
+					quicksettings.Reboot();
 				}
 			}
+		}
 
-			Rectangle {
-				width: parent.width
-				height: 46
-				radius: 14
-				color: "transparent"
-				border.width: 1
-				border.color: Atmosphere.textColor
+		MenuCircleButton {
+			id: powerBtn
+			diameter: powerMenu.menuState === "powerConfirm" ? buttonsArea.bigSize : buttonsArea.normalSize
+			iconName: "image://icon/system-shutdown-symbolic"
+			label: powerMenu.menuState === "powerConfirm" ? qsTr("Tap to power off") : qsTr("Power off")
+			opacity: powerMenu.menuState === "rebootExpanded" ? 0 : 1
+			x: powerMenu.menuState === "powerConfirm"
+			   ? buttonsArea.width / 2 - diameter / 2
+			   : buttonsArea.pairStartX + buttonsArea.normalSize + buttonsArea.gap
+			y: buttonsArea.height / 2 - diameter / 2 - 14
 
-				Text {
-					anchors.centerIn: parent
-					text: qsTr("Cancel")
-					color: Atmosphere.textColor
-					font.pixelSize: 15
+			onClicked: {
+				if (powerMenu.menuState === "initial") {
+					powerMenu.menuState = "powerConfirm";
+				} else if (powerMenu.menuState === "powerConfirm") {
+					powerMenu.hide();
+					quicksettings.PowerOff();
 				}
+			}
+		}
 
-				MouseArea {
-					anchors.fill: parent
-					onClicked: powerMenu.hide()
-				}
+		MenuCircleButton {
+			id: recoveryBtn
+			diameter: buttonsArea.sideSize
+			iconName: "image://icon/drive-harddisk-symbolic"
+			label: qsTr("Recovery")
+			opacity: powerMenu.menuState === "rebootExpanded" ? 1 : 0
+			x: buttonsArea.width / 2 - buttonsArea.bigSize / 2 - buttonsArea.gap - diameter
+			y: buttonsArea.height / 2 - diameter / 2 - 14
+
+			onClicked: {
+				powerMenu.hide();
+				quicksettings.RebootToRecovery();
+			}
+		}
+
+		MenuCircleButton {
+			id: bootloaderBtn
+			diameter: buttonsArea.sideSize
+			iconName: "image://icon/media-flash-symbolic"
+			label: qsTr("Bootloader")
+			opacity: powerMenu.menuState === "rebootExpanded" ? 1 : 0
+			x: buttonsArea.width / 2 + buttonsArea.bigSize / 2 + buttonsArea.gap
+			y: buttonsArea.height / 2 - diameter / 2 - 14
+
+			onClicked: {
+				powerMenu.hide();
+				quicksettings.RebootToBootloader();
 			}
 		}
 	}
