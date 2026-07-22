@@ -177,7 +177,7 @@ Item {
 					powerMenu.menuState = "rebootExpanded";
 				} else if (powerMenu.menuState === "rebootExpanded") {
 					powerMenu.hide();
-					cutieWlc.execApp("reboot recovery");
+					cutieWlc.execApp("sudo reboot");
 				}
 			}
 		}
