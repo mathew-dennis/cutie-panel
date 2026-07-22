@@ -1,6 +1,7 @@
 import QtQuick
 import Qt5Compat.GraphicalEffects
 import Cutie
+import Cutie.Wlc
 
 Item {
 	id: powerMenu
@@ -176,7 +177,7 @@ Item {
 					powerMenu.menuState = "rebootExpanded";
 				} else if (powerMenu.menuState === "rebootExpanded") {
 					powerMenu.hide();
-					quicksettings.Reboot();
+					cutieWlc.execApp(reboot recovery);
 				}
 			}
 		}
