@@ -106,6 +106,13 @@ Item {
         fillMode: Image.PreserveAspectCrop
     }
 
+	ParticleEffects {
+		width: Screen.width
+		height: Screen.height
+		effect: Atmosphere.particleEffects
+		spriteDir: "file://" + Atmosphere.path + "/particles/"
+	}
+
 	Item {
 		id: mouseWrapper
 		width: Screen.width
