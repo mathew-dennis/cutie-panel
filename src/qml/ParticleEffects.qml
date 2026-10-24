@@ -3,11 +3,11 @@ import QtQuick.Particles
 
 // Lockscreen particle effect. `effect` is the "particle-effects" key of the
 // active atmosphere's settings.ini ("none" or unknown = nothing is shown) and
-// the sprite is loaded from <spriteDir><effect>.png.
+// `sprite` is the shared sprite for that effect (Atmosphere.particleSprite()).
 Item {
 	id: root
 	property string effect: "none"   // none | snow | autumn | spring | rain | night
-	property url spriteDir
+	property url sprite
 	enabled: false
 
 	readonly property var presets: ({
@@ -41,7 +41,7 @@ Item {
 
 	ImageParticle {
 		system: ps
-		source: root.valid ? root.spriteDir + root.effect + ".png" : ""
+		source: root.valid ? root.sprite : ""
 		autoRotation: root.p.auto
 		rotationVariation: root.p.auto ? 0 : 180
 		rotationVelocityVariation: root.p.rotVel
