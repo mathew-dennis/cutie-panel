@@ -20,7 +20,20 @@ Item {
 	readonly property bool valid: effect in presets
 	readonly property var p: presets[effect] || presets.snow
 
-	ParticleSystem { id: ps; running: root.visible && root.valid }
+	ParticleSystem {
+		id: ps
+		running: root.visible && root.valid
+		onRunningChanged: console.log("ParticleEffects: running ->", running, "effect:", root.effect)
+	}
+
+	// DEBUG: while the system runs, log every 2s. If this keeps printing with
+	// the display off, the effect is still simulating. Remove when done.
+	Timer {
+		interval: 2000
+		running: ps.running
+		repeat: true
+		onTriggered: console.log("ParticleEffects: active, effect:", root.effect, "visible:", root.visible)
+	}
 
 	Emitter {
 		system: ps
