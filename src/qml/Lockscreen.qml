@@ -110,7 +110,7 @@ Item {
 		width: Screen.width
 		height: Screen.height
 		effect: Atmosphere.particleEffects
-		spriteDir: "file://" + Atmosphere.path + "/particles/"
+		sprite: Atmosphere.particleSprite(Atmosphere.particleEffects)
 	}
 
 	Item {
