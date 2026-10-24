@@ -20,28 +20,7 @@ Item {
 	readonly property bool valid: effect in presets
 	readonly property var p: presets[effect] || presets.snow
 
-	ParticleSystem {
-		id: ps
-		running: root.visible && root.valid
-		onRunningChanged: console.log("ParticleEffects: running ->", running, "effect:", root.effect)
-	}
-
-	// DEBUG: every 2s while the system runs, log the property state and how
-	// many frames the window actually swapped in that time. Remove when done.
-	property int debugFrames: 0
-	Connections {
-		target: root.Window.window
-		function onFrameSwapped() { root.debugFrames++ }
-	}
-	Timer {
-		interval: 2000
-		running: ps.running
-		repeat: true
-		onTriggered: {
-			console.log("ParticleEffects: active, effect:", root.effect, "visible:", root.visible, "frames/2s:", root.debugFrames)
-			root.debugFrames = 0
-		}
-	}
+	ParticleSystem { id: ps; running: root.visible && root.valid }
 
 	Emitter {
 		system: ps
