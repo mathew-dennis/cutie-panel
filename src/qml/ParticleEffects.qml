@@ -26,13 +26,21 @@ Item {
 		onRunningChanged: console.log("ParticleEffects: running ->", running, "effect:", root.effect)
 	}
 
-	// DEBUG: while the system runs, log every 2s. If this keeps printing with
-	// the display off, the effect is still simulating. Remove when done.
+	// DEBUG: every 2s while the system runs, log the property state and how
+	// many frames the window actually swapped in that time. Remove when done.
+	property int debugFrames: 0
+	Connections {
+		target: root.Window.window
+		function onFrameSwapped() { root.debugFrames++ }
+	}
 	Timer {
 		interval: 2000
 		running: ps.running
 		repeat: true
-		onTriggered: console.log("ParticleEffects: active, effect:", root.effect, "visible:", root.visible)
+		onTriggered: {
+			console.log("ParticleEffects: active, effect:", root.effect, "visible:", root.visible, "frames/2s:", root.debugFrames)
+			root.debugFrames = 0
+		}
 	}
 
 	Emitter {
