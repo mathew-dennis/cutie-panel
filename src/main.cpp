@@ -84,16 +84,18 @@ int main(int argc, char *argv[])
 		    externalWindows.contains(screen))
 			return;
 
-		auto *panelView = new QQuickView(view.engine());
+		auto *panelView = new QQuickView(view.engine(), nullptr);
 		panelView->setScreen(screen);
 		LayerShellQt::Window *panelLayer =
 			LayerShellQt::Window::get(panelView);
 		panelLayer->setScreenConfiguration(
 			LayerShellQt::Window::ScreenFromQWindow);
 		panelLayer->setLayer(LayerShellQt::Window::LayerTop);
-		panelLayer->setAnchors(LayerShellQt::Window::AnchorTop |
-				       LayerShellQt::Window::AnchorLeft |
-				       LayerShellQt::Window::AnchorRight);
+		LayerShellQt::Window::Anchors panelAnchors;
+		panelAnchors.setFlag(LayerShellQt::Window::AnchorTop);
+		panelAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
+		panelAnchors.setFlag(LayerShellQt::Window::AnchorRight);
+		panelLayer->setAnchors(panelAnchors);
 		panelLayer->setDesiredSize(QSize(screen->size().width(), 36));
 		panelLayer->setKeyboardInteractivity(
 			LayerShellQt::Window::KeyboardInteractivityNone);
@@ -104,17 +106,19 @@ int main(int argc, char *argv[])
 		panelView->resize(screen->size().width(), 36);
 		panelView->show();
 
-		auto *lockView = new QQuickView(view.engine());
+		auto *lockView = new QQuickView(view.engine(), nullptr);
 		lockView->setScreen(screen);
 		LayerShellQt::Window *lockLayer =
 			LayerShellQt::Window::get(lockView);
 		lockLayer->setScreenConfiguration(
 			LayerShellQt::Window::ScreenFromQWindow);
 		lockLayer->setLayer(LayerShellQt::Window::LayerOverlay);
-		lockLayer->setAnchors(LayerShellQt::Window::AnchorTop |
-				      LayerShellQt::Window::AnchorBottom |
-				      LayerShellQt::Window::AnchorLeft |
-				      LayerShellQt::Window::AnchorRight);
+		LayerShellQt::Window::Anchors lockAnchors;
+		lockAnchors.setFlag(LayerShellQt::Window::AnchorTop);
+		lockAnchors.setFlag(LayerShellQt::Window::AnchorBottom);
+		lockAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
+		lockAnchors.setFlag(LayerShellQt::Window::AnchorRight);
+		lockLayer->setAnchors(lockAnchors);
 		lockLayer->setDesiredSize(screen->size());
 		lockLayer->setKeyboardInteractivity(
 			LayerShellQt::Window::KeyboardInteractivityOnDemand);
@@ -133,7 +137,8 @@ int main(int argc, char *argv[])
 		if (lockState.locked())
 			lockView->show();
 
-		externalWindows.insert(screen, { panelView, lockView });
+		externalWindows.insert(
+			screen, QList<QQuickView *>{ panelView, lockView });
 	};
 
 	QObject::connect(&app, &QGuiApplication::screenAdded, &app,
