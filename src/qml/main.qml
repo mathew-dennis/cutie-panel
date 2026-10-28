@@ -105,7 +105,7 @@ Item {
 
 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
 				outputPowerManager.mode = false;
-				lockscreen.visible = true;
+				lockState.locked = true;
 				lockscreen.opacity = 1;
 				settingsState.state = "closed";
 				settingsState.height = Screen.height + 1;
@@ -136,7 +136,19 @@ Item {
 
     PowerMenu { id: powerMenu }
 	VolumeSliderOverlay { id: volumeSliderOverlay }
-	Lockscreen { id: lockscreen }
+	Lockscreen {
+		id: lockscreen
+		onUnlocked: settingsState.height = setting.height
+	}
+	Connections {
+		target: lockState
+		function onLockedChanged(locked) {
+			if (locked)
+				settingsState.height = Screen.height + 1
+			else
+				settingsState.height = setting.height
+		}
+	}
 	SettingSheet { id: settingSheet }
 	StatusArea { id: setting }
 	}

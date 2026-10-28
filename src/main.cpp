@@ -1,11 +1,37 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QIcon>
+#include <QHash>
+#include <QScreen>
+#include <QSize>
 #include <LayerShellQt/shell.h>
 #include <LayerShellQt/window.h>
 
 #include "quicksettings.h"
 #include <cutiescreenlock/cutiescreenlockauth.h>
+
+class PanelLockState : public QObject {
+	Q_OBJECT
+	Q_PROPERTY(bool locked READ locked WRITE setLocked NOTIFY lockedChanged)
+
+public:
+	bool locked() const { return m_locked; }
+
+public slots:
+	void setLocked(bool locked)
+	{
+		if (m_locked == locked)
+			return;
+		m_locked = locked;
+		emit lockedChanged(m_locked);
+	}
+
+signals:
+	void lockedChanged(bool locked);
+
+private:
+	bool m_locked = true;
+};
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +42,9 @@ int main(int argc, char *argv[])
 
 	QGuiApplication app(argc, argv);
 
+	PanelLockState lockState;
 	QQuickView view;
+	view.engine()->rootContext()->setContextProperty("lockState", &lockState);
 
 	LayerShellQt::Window *layerShell = LayerShellQt::Window::get(&view);
 	layerShell->setLayer(LayerShellQt::Window::LayerOverlay);
@@ -42,5 +70,90 @@ int main(int argc, char *argv[])
 
 	view.show();
 
+	QHash<QScreen *, QList<QQuickView *>> externalWindows;
+	auto removeExternalScreen = [&externalWindows](QScreen *screen) {
+		const QList<QQuickView *> windows = externalWindows.take(screen);
+		for (QQuickView *window : windows) {
+			window->hide();
+			delete window;
+		}
+	};
+	auto addExternalScreen = [&view, &lockState,
+				  &externalWindows](QScreen *screen) {
+		if (!screen || screen == view.screen() ||
+		    externalWindows.contains(screen))
+			return;
+
+		auto *panelView = new QQuickView(view.engine());
+		panelView->setScreen(screen);
+		LayerShellQt::Window *panelLayer =
+			LayerShellQt::Window::get(panelView);
+		panelLayer->setScreenConfiguration(
+			LayerShellQt::Window::ScreenFromQWindow);
+		panelLayer->setLayer(LayerShellQt::Window::LayerTop);
+		panelLayer->setAnchors(LayerShellQt::Window::AnchorTop |
+				       LayerShellQt::Window::AnchorLeft |
+				       LayerShellQt::Window::AnchorRight);
+		panelLayer->setDesiredSize(QSize(screen->size().width(), 36));
+		panelLayer->setKeyboardInteractivity(
+			LayerShellQt::Window::KeyboardInteractivityNone);
+		panelLayer->setExclusiveZone(0);
+		panelLayer->setScope("cutie-panel-external");
+		panelView->setSource(QUrl("qrc:/ExternalPanel.qml"));
+		panelView->setColor(QColor(Qt::transparent));
+		panelView->resize(screen->size().width(), 36);
+		panelView->show();
+
+		auto *lockView = new QQuickView(view.engine());
+		lockView->setScreen(screen);
+		LayerShellQt::Window *lockLayer =
+			LayerShellQt::Window::get(lockView);
+		lockLayer->setScreenConfiguration(
+			LayerShellQt::Window::ScreenFromQWindow);
+		lockLayer->setLayer(LayerShellQt::Window::LayerOverlay);
+		lockLayer->setAnchors(LayerShellQt::Window::AnchorTop |
+				      LayerShellQt::Window::AnchorBottom |
+				      LayerShellQt::Window::AnchorLeft |
+				      LayerShellQt::Window::AnchorRight);
+		lockLayer->setDesiredSize(screen->size());
+		lockLayer->setKeyboardInteractivity(
+			LayerShellQt::Window::KeyboardInteractivityOnDemand);
+		lockLayer->setExclusiveZone(-1);
+		lockLayer->setScope("cutie-lockscreen-external");
+		lockView->setSource(QUrl("qrc:/ExternalLock.qml"));
+		lockView->setColor(QColor(Qt::transparent));
+		lockView->resize(screen->size());
+		QObject::connect(&lockState, &PanelLockState::lockedChanged,
+				 lockView, [lockView](bool locked) {
+					 if (locked)
+						 lockView->show();
+					 else
+						 lockView->hide();
+				 });
+		if (lockState.locked())
+			lockView->show();
+
+		externalWindows.insert(screen, { panelView, lockView });
+	};
+
+	QObject::connect(&app, &QGuiApplication::screenAdded, &app,
+			 [addExternalScreen](QScreen *screen) {
+				 addExternalScreen(screen);
+			 });
+	QObject::connect(&app, &QGuiApplication::screenRemoved, &app,
+			 [removeExternalScreen](QScreen *screen) {
+				 removeExternalScreen(screen);
+			 });
+	for (QScreen *screen : app.screens())
+		addExternalScreen(screen);
+	QObject::connect(&app, &QCoreApplication::aboutToQuit, &app,
+			 [&externalWindows, &removeExternalScreen]() {
+				 const auto screens = externalWindows.keys();
+				 for (QScreen *screen : screens)
+					 removeExternalScreen(screen);
+			 });
+
 	return app.exec();
 }
+
+#include "main.moc"

@@ -7,9 +7,11 @@ import Qt5Compat.GraphicalEffects
 
 Item {
 	id: lockscreen
-    visible: true
+    visible: lockState.locked
     width: Screen.width
     height: Screen.height + 1
+
+	signal unlocked()
 
 	CutieScreenLock {
 		id: lockAuth
@@ -64,8 +66,8 @@ Item {
 		to: 0
 
 		onFinished: {
-            settingsState.height = setting.height;
-			lockscreen.visible = false;
+			lockState.locked = false;
+			lockscreen.unlocked();
 		}
 	}
 
@@ -85,8 +87,8 @@ Item {
 		onFinished: {
             authOverlay.visible = false;
 		    authOverlay.opacity = 0;
-            settingsState.height = setting.height;
-			lockscreen.visible = false
+			lockState.locked = false;
+			lockscreen.unlocked();
 		}
 	}
 
