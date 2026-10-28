@@ -17,7 +17,9 @@ find_path(CUTIESCREENLOCK_INCLUDE_DIR cutiescreenlock/cutiescreenlockauth.h REQU
 set(cutie-shell_SOURCES 
 	src/main.cpp
 	src/quicksettings.cpp
-	src/quicksettings.h)
+	src/quicksettings.h
+	src/lockscreen.cpp
+	src/lockscreen.h)
 
 qt6_add_resources(APP_RESOURCES 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/qml/qml.qrc)
