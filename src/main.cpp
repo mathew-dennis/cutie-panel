@@ -1,11 +1,13 @@
 #include <QGuiApplication>
 #include <QQuickView>
+#include <QQuickItem>
 #include <QDebug>
 #include <QIcon>
 #include <QQmlError>
 #include <QHash>
 #include <QScreen>
 #include <QSize>
+#include <QSizeF>
 #include <LayerShellQt/shell.h>
 #include <LayerShellQt/window.h>
 
@@ -128,12 +130,16 @@ int main(int argc, char *argv[])
 		panelView->setSource(QUrl("qrc:/ExternalPanel.qml"));
 		panelView->setColor(QColor(Qt::transparent));
 		panelView->resize(screenSize.width(), 36);
+		auto *panelRoot = qobject_cast<QQuickItem *>(panelView->rootObject());
+		if (panelRoot)
+			panelRoot->setSize(QSizeF(screenSize.width(), 36));
 		panelView->show();
 		qInfo() << "[cutie-panel] top bar window screen"
 			<< panelView->screen() << panelView->screen()->name()
 			<< "geometry" << panelView->screen()->geometry()
 			<< "matches requested" << (panelView->screen() == screen)
-			<< "window size" << panelView->size();
+			<< "window size" << panelView->size() << "root size"
+			<< (panelRoot ? panelRoot->size() : QSizeF());
 
 		auto *lockView = new QQuickView(view.engine(), nullptr);
 		watchQml(lockView, QStringLiteral("[cutie-panel lockscreen]"));
@@ -158,6 +164,9 @@ int main(int argc, char *argv[])
 		lockView->setSource(QUrl("qrc:/ExternalLock.qml"));
 		lockView->setColor(QColor(Qt::transparent));
 		lockView->resize(screenSize);
+		auto *lockRoot = qobject_cast<QQuickItem *>(lockView->rootObject());
+		if (lockRoot)
+			lockRoot->setSize(QSizeF(screenSize));
 		QObject::connect(&lockState, &PanelLockState::lockedChanged,
 				 lockView, [lockView](bool locked) {
 					 if (locked)
@@ -171,7 +180,8 @@ int main(int argc, char *argv[])
 			<< lockView->screen() << lockView->screen()->name()
 			<< "geometry" << lockView->screen()->geometry()
 			<< "matches requested" << (lockView->screen() == screen)
-			<< "window size" << lockView->size();
+			<< "window size" << lockView->size() << "root size"
+			<< (lockRoot ? lockRoot->size() : QSizeF());
 
 		externalWindows.insert(
 			screen, QList<QQuickView *>{ panelView, lockView });
