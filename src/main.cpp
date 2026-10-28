@@ -99,8 +99,10 @@ int main(int argc, char *argv[])
 		    externalWindows.contains(screen))
 			return;
 		qInfo() << "[cutie-panel] creating external UI for"
-			<< screen->name() << screen->geometry()
-			<< "screen size" << screen->size()
+			<< "requested screen" << screen << screen->name()
+			<< "geometry" << screen->geometry() << "size"
+			<< screen->size() << "device pixel ratio"
+			<< screen->devicePixelRatio()
 			<< "lock state" << lockState.locked();
 		const QSize screenSize = screen->geometry().size();
 
@@ -128,8 +130,10 @@ int main(int argc, char *argv[])
 		panelView->resize(screenSize.width(), 36);
 		panelView->show();
 		qInfo() << "[cutie-panel] top bar window screen"
-			<< panelView->screen()->name() << "window size"
-			<< panelView->size();
+			<< panelView->screen() << panelView->screen()->name()
+			<< "geometry" << panelView->screen()->geometry()
+			<< "matches requested" << (panelView->screen() == screen)
+			<< "window size" << panelView->size();
 
 		auto *lockView = new QQuickView(view.engine(), nullptr);
 		watchQml(lockView, QStringLiteral("[cutie-panel lockscreen]"));
@@ -164,8 +168,10 @@ int main(int argc, char *argv[])
 		if (lockState.locked())
 			lockView->show();
 		qInfo() << "[cutie-panel] lock window screen"
-			<< lockView->screen()->name() << "window size"
-			<< lockView->size();
+			<< lockView->screen() << lockView->screen()->name()
+			<< "geometry" << lockView->screen()->geometry()
+			<< "matches requested" << (lockView->screen() == screen)
+			<< "window size" << lockView->size();
 
 		externalWindows.insert(
 			screen, QList<QQuickView *>{ panelView, lockView });
