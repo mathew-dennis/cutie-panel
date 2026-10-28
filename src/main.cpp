@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QQuickView>
+#include <QDebug>
 #include <QIcon>
+#include <QQmlError>
 #include <QHash>
 #include <QScreen>
 #include <QSize>
@@ -71,6 +73,19 @@ int main(int argc, char *argv[])
 	view.show();
 
 	QHash<QScreen *, QList<QQuickView *>> externalWindows;
+	auto watchQml = [](QQuickView *window, const QString &label) {
+		QObject::connect(window, &QQuickView::statusChanged, window,
+				 [window, label](QQuickView::Status status) {
+					 if (status == QQuickView::Ready)
+						 qInfo() << label << "QML ready; size"
+							<< window->size();
+					 else if (status == QQuickView::Error)
+						 for (const QQmlError &error :
+					      window->errors())
+							 qWarning().noquote()
+								 << label << error.toString();
+				 });
+	};
 	auto removeExternalScreen = [&externalWindows](QScreen *screen) {
 		const QList<QQuickView *> windows = externalWindows.take(screen);
 		for (QQuickView *window : windows) {
@@ -79,12 +94,17 @@ int main(int argc, char *argv[])
 		}
 	};
 	auto addExternalScreen = [&view, &lockState,
-				  &externalWindows](QScreen *screen) {
+				  &externalWindows,
+				  watchQml](QScreen *screen) {
 		if (!screen || screen == view.screen() ||
 		    externalWindows.contains(screen))
 			return;
+		qInfo() << "[cutie-panel] creating external UI for"
+			<< screen->name() << screen->geometry()
+			<< "lock state" << lockState.locked();
 
 		auto *panelView = new QQuickView(view.engine(), nullptr);
+		watchQml(panelView, QStringLiteral("[cutie-panel top bar]"));
 		panelView->setScreen(screen);
 		LayerShellQt::Window *panelLayer =
 			LayerShellQt::Window::get(panelView);
@@ -107,6 +127,7 @@ int main(int argc, char *argv[])
 		panelView->show();
 
 		auto *lockView = new QQuickView(view.engine(), nullptr);
+		watchQml(lockView, QStringLiteral("[cutie-panel lockscreen]"));
 		lockView->setScreen(screen);
 		LayerShellQt::Window *lockLayer =
 			LayerShellQt::Window::get(lockView);
