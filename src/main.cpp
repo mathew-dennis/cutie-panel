@@ -120,7 +120,6 @@ int main(int argc, char *argv[])
 		LayerShellQt::Window::Anchors panelAnchors;
 		panelAnchors.setFlag(LayerShellQt::Window::AnchorTop);
 		panelAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
-		panelAnchors.setFlag(LayerShellQt::Window::AnchorRight);
 		panelLayer->setAnchors(panelAnchors);
 		panelLayer->setDesiredSize(QSize(screenSize.width(), 36));
 		panelLayer->setKeyboardInteractivity(
@@ -152,9 +151,7 @@ int main(int argc, char *argv[])
 		lockLayer->setLayer(LayerShellQt::Window::LayerOverlay);
 		LayerShellQt::Window::Anchors lockAnchors;
 		lockAnchors.setFlag(LayerShellQt::Window::AnchorTop);
-		lockAnchors.setFlag(LayerShellQt::Window::AnchorBottom);
 		lockAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
-		lockAnchors.setFlag(LayerShellQt::Window::AnchorRight);
 		lockLayer->setAnchors(lockAnchors);
 		lockLayer->setDesiredSize(screenSize);
 		lockLayer->setKeyboardInteractivity(
