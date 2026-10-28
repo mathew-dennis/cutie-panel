@@ -1,8 +1,8 @@
 import QtQuick
 
 Item {
-	width: Screen.width
-	height: Screen.height
+	width: parent ? parent.width : Screen.width
+	height: parent ? parent.height : Screen.height
 
 	Lockscreen {
 		anchors.fill: parent

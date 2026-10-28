@@ -3,7 +3,7 @@ import Cutie
 
 Rectangle {
 	id: root
-	width: Screen.width
+	width: parent ? parent.width : Screen.width
 	height: 36
 	color: Atmosphere.secondaryAlphaColor
 

@@ -8,8 +8,8 @@ import Qt5Compat.GraphicalEffects
 Item {
 	id: lockscreen
     visible: lockState.locked
-    width: Screen.width
-    height: Screen.height + 1
+    width: parent ? parent.width : Screen.width
+    height: parent ? parent.height : Screen.height + 1
 
 	signal unlocked()
 
@@ -102,23 +102,21 @@ Item {
 
     Image {
         id: wallpaper
-		width: Screen.width
-		height: Screen.height
+		anchors.fill: parent
         source: "file:/" + Atmosphere.path + "/wallpaper.jpg"
         fillMode: Image.PreserveAspectCrop
     }
 
 	ParticleEffects {
-		width: Screen.width
-		height: Screen.height
+		anchors.fill: parent
 		effect: Atmosphere.particleEffects
 		sprite: Atmosphere.particleSprite(Atmosphere.particleEffects)
 	}
 
 	Item {
 		id: mouseWrapper
-		width: Screen.width
-		height: Screen.height
+		width: parent.width
+		height: parent.height
 		visible: !authOverlay.visible
 
 		MouseArea { 
@@ -136,7 +134,7 @@ Item {
 
 			onPositionChanged: {
 				if (drag.active)
-					lockscreen.opacity = 1 + mouseWrapper.y / Screen.height;
+					lockscreen.opacity = 1 + mouseWrapper.y / lockscreen.height;
 			}
 		}
 	}

@@ -77,8 +77,7 @@ int main(int argc, char *argv[])
 		QObject::connect(window, &QQuickView::statusChanged, window,
 				 [window, label](QQuickView::Status status) {
 					 if (status == QQuickView::Ready)
-						 qInfo() << label << "QML ready; size"
-							<< window->size();
+						 qInfo() << label << "QML ready";
 					 else if (status == QQuickView::Error)
 						 for (const QQmlError &error :
 					      window->errors())
@@ -101,10 +100,13 @@ int main(int argc, char *argv[])
 			return;
 		qInfo() << "[cutie-panel] creating external UI for"
 			<< screen->name() << screen->geometry()
+			<< "screen size" << screen->size()
 			<< "lock state" << lockState.locked();
+		const QSize screenSize = screen->geometry().size();
 
 		auto *panelView = new QQuickView(view.engine(), nullptr);
 		watchQml(panelView, QStringLiteral("[cutie-panel top bar]"));
+		panelView->setResizeMode(QQuickView::SizeRootObjectToView);
 		panelView->setScreen(screen);
 		LayerShellQt::Window *panelLayer =
 			LayerShellQt::Window::get(panelView);
@@ -116,18 +118,22 @@ int main(int argc, char *argv[])
 		panelAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
 		panelAnchors.setFlag(LayerShellQt::Window::AnchorRight);
 		panelLayer->setAnchors(panelAnchors);
-		panelLayer->setDesiredSize(QSize(screen->size().width(), 36));
+		panelLayer->setDesiredSize(QSize(screenSize.width(), 36));
 		panelLayer->setKeyboardInteractivity(
 			LayerShellQt::Window::KeyboardInteractivityNone);
 		panelLayer->setExclusiveZone(0);
 		panelLayer->setScope("cutie-panel-external");
 		panelView->setSource(QUrl("qrc:/ExternalPanel.qml"));
 		panelView->setColor(QColor(Qt::transparent));
-		panelView->resize(screen->size().width(), 36);
+		panelView->resize(screenSize.width(), 36);
 		panelView->show();
+		qInfo() << "[cutie-panel] top bar window screen"
+			<< panelView->screen()->name() << "window size"
+			<< panelView->size();
 
 		auto *lockView = new QQuickView(view.engine(), nullptr);
 		watchQml(lockView, QStringLiteral("[cutie-panel lockscreen]"));
+		lockView->setResizeMode(QQuickView::SizeRootObjectToView);
 		lockView->setScreen(screen);
 		LayerShellQt::Window *lockLayer =
 			LayerShellQt::Window::get(lockView);
@@ -140,14 +146,14 @@ int main(int argc, char *argv[])
 		lockAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
 		lockAnchors.setFlag(LayerShellQt::Window::AnchorRight);
 		lockLayer->setAnchors(lockAnchors);
-		lockLayer->setDesiredSize(screen->size());
+		lockLayer->setDesiredSize(screenSize);
 		lockLayer->setKeyboardInteractivity(
 			LayerShellQt::Window::KeyboardInteractivityOnDemand);
 		lockLayer->setExclusiveZone(-1);
 		lockLayer->setScope("cutie-lockscreen-external");
 		lockView->setSource(QUrl("qrc:/ExternalLock.qml"));
 		lockView->setColor(QColor(Qt::transparent));
-		lockView->resize(screen->size());
+		lockView->resize(screenSize);
 		QObject::connect(&lockState, &PanelLockState::lockedChanged,
 				 lockView, [lockView](bool locked) {
 					 if (locked)
@@ -157,6 +163,9 @@ int main(int argc, char *argv[])
 				 });
 		if (lockState.locked())
 			lockView->show();
+		qInfo() << "[cutie-panel] lock window screen"
+			<< lockView->screen()->name() << "window size"
+			<< lockView->size();
 
 		externalWindows.insert(
 			screen, QList<QQuickView *>{ panelView, lockView });
