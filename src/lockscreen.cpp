@@ -59,9 +59,9 @@ void LockScreen::create(QScreen *screen)
 				 });
 	};
 
-	// --- Top Bar Panel View ---
+	// --- Top Bar Panel View (Full main.qml) ---
 	auto *panelView = new QQuickView(m_engine, nullptr);
-	watchQml(panelView, QStringLiteral("[cutie-panel top bar]"));
+	watchQml(panelView, QStringLiteral("[cutie-panel external main]"));
 	panelView->setResizeMode(QQuickView::SizeRootObjectToView);
 	panelView->setScreen(screen);
 	
@@ -73,18 +73,18 @@ void LockScreen::create(QScreen *screen)
 	panelAnchors.setFlag(LayerShellQt::Window::AnchorTop);
 	panelAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
 	panelLayer->setAnchors(panelAnchors);
-	panelLayer->setDesiredSize(QSize(screenSize.width(), 36));
+	panelLayer->setDesiredSize(QSize(screenSize.width(), 30));
 	panelLayer->setKeyboardInteractivity(LayerShellQt::Window::KeyboardInteractivityNone);
-	panelLayer->setExclusiveZone(0);
+	panelLayer->setExclusiveZone(30);
 	panelLayer->setScope("cutie-panel-external");
 	
-	panelView->setSource(QUrl("qrc:/ExternalPanel.qml"));
+	panelView->setSource(QUrl("qrc:/main.qml"));
 	panelView->setColor(QColor(Qt::transparent));
-	panelView->resize(screenSize.width(), 36);
+	panelView->resize(screenSize.width(), 30);
 	
 	auto *panelRoot = qobject_cast<QQuickItem *>(panelView->rootObject());
 	if (panelRoot)
-		panelRoot->setSize(QSizeF(screenSize.width(), 36));
+		panelRoot->setSize(QSizeF(screenSize.width(), 30));
 	panelView->show();
 
 	// --- Lockscreen View ---
@@ -98,7 +98,7 @@ void LockScreen::create(QScreen *screen)
 	lockLayer->setLayer(LayerShellQt::Window::LayerOverlay);
 	
 	LayerShellQt::Window::Anchors lockAnchors;
-	lockAnchors.setFlag(LayerShellQt::Window::LayerTop);
+	lockAnchors.setFlag(LayerShellQt::Window::AnchorTop);
 	lockAnchors.setFlag(LayerShellQt::Window::AnchorLeft);
 	lockLayer->setAnchors(lockAnchors);
 	lockLayer->setDesiredSize(screenSize);
