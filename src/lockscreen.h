@@ -8,7 +8,28 @@
 #include <QGuiApplication>
 #include <QQmlEngine>
 
-class PanelLockState;
+class PanelLockState : public QObject {
+	Q_OBJECT
+	Q_PROPERTY(bool locked READ locked WRITE setLocked NOTIFY lockedChanged)
+
+public:
+	bool locked() const { return m_locked; }
+
+public slots:
+	void setLocked(bool locked)
+	{
+		if (m_locked == locked)
+			return;
+		m_locked = locked;
+		emit lockedChanged(m_locked);
+	}
+
+signals:
+	void lockedChanged(bool locked);
+
+private:
+	bool m_locked = true;
+};
 
 class LockScreen : public QObject {
 	Q_OBJECT
