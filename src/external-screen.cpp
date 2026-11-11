@@ -60,6 +60,12 @@ void ExternalScreens::add(QScreen *screen)
 	view->setSource(QUrl("qrc:/ExternalScreen.qml"));
 	m_views.insert(screen, view);
 	apply(view);
+
+	// A freshly connected output can report its real mode after the QScreen
+	// already exists, so follow geometry changes instead of trusting the
+	// size read at creation time.
+	connect(screen, &QScreen::geometryChanged, view, [this, view]() { apply(view); });
+
 	view->show();
 }
 
@@ -80,6 +86,10 @@ void ExternalScreens::apply(QQuickView *view)
 	const QSize screenSize = view->screen()->geometry().size();
 	const QSize size = m_locked ? screenSize
 				    : QSize(screenSize.width(), BarHeight);
+
+	qInfo() << "[cutie-panel] external screen" << view->screen()->name()
+		<< "geometry" << view->screen()->geometry()
+		<< (m_locked ? "locked" : "bar") << "window" << size;
 
 	LayerShellQt::Window *layer = LayerShellQt::Window::get(view);
 	layer->setDesiredSize(size);
