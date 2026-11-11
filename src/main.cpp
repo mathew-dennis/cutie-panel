@@ -5,7 +5,7 @@
 #include <LayerShellQt/window.h>
 
 #include "quicksettings.h"
-#include "lockscreen.h"
+#include "external-screen.h"
 #include <cutiescreenlock/cutiescreenlockauth.h>
 
 int main(int argc, char *argv[])
@@ -17,9 +17,7 @@ int main(int argc, char *argv[])
 
 	QGuiApplication app(argc, argv);
 
-	PanelLockState lockState;
 	QQuickView view;
-	view.engine()->rootContext()->setContextProperty("lockState", &lockState);
 
 	LayerShellQt::Window *layerShell = LayerShellQt::Window::get(&view);
 	layerShell->setLayer(LayerShellQt::Window::LayerOverlay);
@@ -33,16 +31,19 @@ int main(int argc, char *argv[])
 	view.engine()->rootContext()->setContextProperty("quicksettings",
 							 quicksettings);
 
+	// Owns PAM auth + PIN/pattern hashing, and registers the
+	// org.cutie_shell.ScreenLock D-Bus service that Lockscreen.qml (via
+	// `import Cutie.ScreenLock; CutieScreenLock {}`) and cutie-settings both
+	// talk to. Deliberately not exposed to QML directly - see
+	// cutiescreenlockauth.h for why there must be exactly one of these.
 	new CutieScreenLockAuthority(&app);
 
 	view.setSource(QUrl("qrc:/main.qml"));
 	view.setColor(QColor(Qt::transparent));
+
 	view.show();
 
-	// Initialize multi-display handler
-	LockScreen externalDisplays(view.engine(), &lockState, &app);
+	ExternalScreens externalScreens(&view);
 
 	return app.exec();
 }
-
-#include "main.moc"

@@ -18,8 +18,7 @@ set(cutie-shell_SOURCES
 	src/main.cpp
 	src/quicksettings.cpp
 	src/quicksettings.h
-	src/lockscreen.cpp
-	src/lockscreen.h)
+	src/external-screen.cpp)
 
 qt6_add_resources(APP_RESOURCES 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/qml/qml.qrc)
