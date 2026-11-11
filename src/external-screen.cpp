@@ -61,10 +61,10 @@ void ExternalScreens::add(QScreen *screen)
 	m_views.insert(screen, view);
 	apply(view);
 
-	// A freshly connected output can report its real mode after the QScreen
-	// already exists, so follow geometry changes instead of trusting the
-	// size read at creation time.
-	connect(screen, &QScreen::geometryChanged, view, [this, view]() { apply(view); });
+	// The compositor decides which output the surface ends up on and Qt
+	// follows it, so the QScreen the window was created with can be the
+	// wrong one. Re-apply once the window's real screen is known.
+	connect(view, &QWindow::screenChanged, this, [this, view]() { apply(view); });
 
 	view->show();
 }
