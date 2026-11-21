@@ -73,7 +73,8 @@ void ExternalScreens::remove(QScreen *screen)
 {
 	if (QQuickView *view = m_views.take(screen)) {
 		view->hide();
-		view->deleteLater();
+		// Intentionally do not delete the QQuickView when its Wayland QScreen
+		// is removed (avoids QtWaylandClient / QSGThreadedRenderLoop crash).
 	}
 }
 
