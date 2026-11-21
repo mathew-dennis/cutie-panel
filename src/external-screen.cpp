@@ -71,7 +71,10 @@ void ExternalScreens::add(QScreen *screen)
 
 void ExternalScreens::remove(QScreen *screen)
 {
-	delete m_views.take(screen);
+	if (QQuickView *view = m_views.take(screen)) {
+		view->hide();
+		view->deleteLater();
+	}
 }
 
 void ExternalScreens::setLocked(bool locked)
@@ -83,6 +86,8 @@ void ExternalScreens::setLocked(bool locked)
 
 void ExternalScreens::apply(QQuickView *view)
 {
+	if (!view || !view->screen() || view->screen() == qApp->primaryScreen())
+		return;
 	const QSize screenSize = view->screen()->geometry().size();
 	const QSize size = m_locked ? screenSize
 				    : QSize(screenSize.width(), BarHeight);
