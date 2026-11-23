@@ -27,15 +27,18 @@ Item {
 	ParticleSystem {
 		id: ps
 		running: root.visible && root.valid
-		// Changing running also resets paused, so re-apply it.
-		onRunningChanged: {
-			if (running)
-				paused = !root.active;
+		onRunningChanged: console.log("cutie-panel: particle system", root.effect,
+					      running ? "started" : "stopped")
+		onPausedChanged: {
+			// Qt resets paused to false right after running changes,
+			// so freeze again if we are still inactive.
+			if (!paused && !root.active) {
+				paused = true;
+				return;
+			}
 			console.log("cutie-panel: particle system", root.effect,
-				    running ? "started" : "stopped");
+				    paused ? "frozen" : "continuing");
 		}
-		onPausedChanged: console.log("cutie-panel: particle system", root.effect,
-					     paused ? "frozen" : "continuing")
 	}
 
 	onActiveChanged: ps.paused = !active
