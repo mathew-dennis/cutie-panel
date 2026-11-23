@@ -123,7 +123,10 @@ Item {
     }
 
     Timer {
-        interval: 100; running: true; repeat: true;
+        interval: 1000; repeat: true; triggeredOnStart: true
+        running: settingsState.screenOn
+        onRunningChanged: console.log("cutie-panel: status clock timer",
+                                      running ? "resumed" : "paused")
         onTriggered: timeChanged()
     }
 

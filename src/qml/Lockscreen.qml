@@ -111,6 +111,7 @@ Item {
 		height: Screen.height
 		effect: Atmosphere.particleEffects
 		sprite: Atmosphere.particleSprite(Atmosphere.particleEffects)
+		active: settingsState.screenOn
 	}
 
 	Item {
@@ -251,7 +252,10 @@ Item {
 	}
 
     Timer {
-        interval: 100; running: true; repeat: true;
+        interval: 1000; repeat: true; triggeredOnStart: true
+        running: lockscreen.visible && settingsState.screenOn
+        onRunningChanged: console.log("cutie-panel: lockscreen clock timer",
+                                      running ? "resumed" : "paused")
         onTriggered: timeChanged()
     }
 }

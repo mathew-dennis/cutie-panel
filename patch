@@ -1,0 +1,117 @@
+--- a/src/qml/main.qml
++++ b/src/qml/main.qml
+@@ -96,7 +96,7 @@
+ 			}
+ 
+ 			if (key == CutieWlc.PowerPress && !outputPowerManager.mode) {
+-				outputPowerManager.mode = true;
++				setScreenOn(true);
+ 				ignoreRelease = true;
+ 				relockTimer.start();
+ 
+@@ -104,7 +104,7 @@
+ 				longPressTimer.start();
+ 
+ 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
+-				outputPowerManager.mode = false;
++				setScreenOn(false);
+ 				lockscreen.visible = true;
+ 				lockscreen.opacity = 1;
+ 				settingsState.state = "closed";
+@@ -117,6 +117,27 @@
+ 		id: outputPowerManager
+ 	}
+ 
++	// True while the phone display is on. Starts true and only follows
++	// mode changes, so timers/particles keep running if no change arrives.
++	property bool screenOn: true
++
++	// Every place the panel itself turns the display on or off goes through
++	// here, so screenOn follows even if the power manager never emits
++	// modeChanged.
++	function setScreenOn(on) {
++		outputPowerManager.mode = on;
++		screenOn = on;
++		console.log("cutie-panel: screen", on ? "on" : "off", "(requested by panel)");
++	}
++	Connections {
++		target: outputPowerManager
++		function onModeChanged() {
++			settingsState.screenOn = outputPowerManager.mode;
++			console.log("cutie-panel: output power mode signal received, mode =",
++				    outputPowerManager.mode, "-> screenOn =", settingsState.screenOn);
++		}
++	}
++
+ 	Timer {
+ 		id: longPressTimer
+ 		interval: 500
+@@ -130,7 +151,7 @@
+ 		interval: 5000
+ 		onTriggered: {
+ 			if (lockscreen.visible) 
+-				outputPowerManager.mode = false;
++				setScreenOn(false);
+ 		}
+ 	}
+ 
+--- a/src/qml/StatusArea.qml
++++ b/src/qml/StatusArea.qml
+@@ -123,7 +123,10 @@
+     }
+ 
+     Timer {
+-        interval: 100; running: true; repeat: true;
++        interval: 1000; repeat: true; triggeredOnStart: true
++        running: settingsState.screenOn
++        onRunningChanged: console.log("cutie-panel: status clock timer",
++                                      running ? "resumed" : "paused")
+         onTriggered: timeChanged()
+     }
+ 
+--- a/src/qml/Lockscreen.qml
++++ b/src/qml/Lockscreen.qml
+@@ -111,6 +111,7 @@
+ 		height: Screen.height
+ 		effect: Atmosphere.particleEffects
+ 		sprite: Atmosphere.particleSprite(Atmosphere.particleEffects)
++		active: settingsState.screenOn
+ 	}
+ 
+ 	Item {
+@@ -251,7 +252,10 @@
+ 	}
+ 
+     Timer {
+-        interval: 100; running: true; repeat: true;
++        interval: 1000; repeat: true; triggeredOnStart: true
++        running: lockscreen.visible && settingsState.screenOn
++        onRunningChanged: console.log("cutie-panel: lockscreen clock timer",
++                                      running ? "resumed" : "paused")
+         onTriggered: timeChanged()
+     }
+ }
+--- a/src/qml/ParticleEffects.qml
++++ b/src/qml/ParticleEffects.qml
+@@ -8,6 +8,7 @@
+ 	id: root
+ 	property string effect: "none"   // none | snow | autumn | spring | rain | night
+ 	property url sprite
++	property bool active: true   // set false to pause (e.g. screen off)
+ 	enabled: false
+ 
+ 	readonly property var presets: ({
+@@ -20,7 +21,12 @@
+ 	readonly property bool valid: effect in presets
+ 	readonly property var p: presets[effect] || presets.snow
+ 
+-	ParticleSystem { id: ps; running: root.visible && root.valid }
++	ParticleSystem {
++		id: ps
++		running: root.visible && root.valid && root.active
++		onRunningChanged: console.log("cutie-panel: particle system",
++					      root.effect, running ? "resumed" : "paused")
++	}
+ 
+ 	Emitter {
+ 		system: ps

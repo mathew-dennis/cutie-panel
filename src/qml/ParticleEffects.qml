@@ -8,6 +8,7 @@ Item {
 	id: root
 	property string effect: "none"   // none | snow | autumn | spring | rain | night
 	property url sprite
+	property bool active: true   // set false to pause (e.g. screen off)
 	enabled: false
 
 	readonly property var presets: ({
@@ -20,7 +21,12 @@ Item {
 	readonly property bool valid: effect in presets
 	readonly property var p: presets[effect] || presets.snow
 
-	ParticleSystem { id: ps; running: root.visible && root.valid }
+	ParticleSystem {
+		id: ps
+		running: root.visible && root.valid && root.active
+		onRunningChanged: console.log("cutie-panel: particle system",
+					      root.effect, running ? "resumed" : "paused")
+	}
 
 	Emitter {
 		system: ps

@@ -96,7 +96,7 @@ Item {
 			}
 
 			if (key == CutieWlc.PowerPress && !outputPowerManager.mode) {
-				outputPowerManager.mode = true;
+				setScreenOn(true);
 				ignoreRelease = true;
 				relockTimer.start();
 
@@ -104,7 +104,7 @@ Item {
 				longPressTimer.start();
 
 			} else if (key == CutieWlc.PowerRelease && outputPowerManager.mode) {
-				outputPowerManager.mode = false;
+				setScreenOn(false);
 				lockscreen.visible = true;
 				lockscreen.opacity = 1;
 				settingsState.state = "closed";
@@ -115,6 +115,27 @@ Item {
 
 	OutputPowerManagerV1 {
 		id: outputPowerManager
+	}
+
+	// True while the phone display is on. Starts true and only follows
+	// mode changes, so timers/particles keep running if no change arrives.
+	property bool screenOn: true
+
+	// Every place the panel itself turns the display on or off goes through
+	// here, so screenOn follows even if the power manager never emits
+	// modeChanged.
+	function setScreenOn(on) {
+		outputPowerManager.mode = on;
+		screenOn = on;
+		console.log("cutie-panel: screen", on ? "on" : "off", "(requested by panel)");
+	}
+	Connections {
+		target: outputPowerManager
+		function onModeChanged() {
+			settingsState.screenOn = outputPowerManager.mode;
+			console.log("cutie-panel: output power mode signal received, mode =",
+				    outputPowerManager.mode, "-> screenOn =", settingsState.screenOn);
+		}
 	}
 
 	Timer {
@@ -130,7 +151,7 @@ Item {
 		interval: 5000
 		onTriggered: {
 			if (lockscreen.visible) 
-				outputPowerManager.mode = false;
+				setScreenOn(false);
 		}
 	}
 
