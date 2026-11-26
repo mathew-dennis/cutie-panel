@@ -20,6 +20,8 @@ Item {
 	Lockscreen {
 		id: lockscreen
 		objectName: "lockscreen"
+		anchors.fill: parent
+		visible: false
 	}
 
 	Rectangle {

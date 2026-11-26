@@ -91,8 +91,5 @@ void ExternalScreens::apply(QQuickView *view)
 	LayerShellQt::Window *layer = LayerShellQt::Window::get(view);
 	layer->setDesiredSize(size);
 	layer->setExclusiveZone(locked ? -1 : BarHeight);
-	layer->setKeyboardInteractivity(
-		locked ? LayerShellQt::Window::KeyboardInteractivityExclusive
-		       : LayerShellQt::Window::KeyboardInteractivityNone);
 	view->resize(size);
 }
