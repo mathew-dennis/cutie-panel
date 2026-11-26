@@ -12,18 +12,6 @@ static const int BarHeight = 30;
 ExternalScreens::ExternalScreens(QQuickView *mainView)
 	: m_mainView(mainView)
 {
-	// The primary lockscreen is the single source of truth: its visibility
-	// is the locked state.
-	QQuickItem *lockscreen =
-		mainView->rootObject()->findChild<QQuickItem *>("lockscreen");
-	if (lockscreen) {
-		m_locked = lockscreen->isVisible();
-		connect(lockscreen, &QQuickItem::visibleChanged, this,
-			[this, lockscreen]() { setLocked(lockscreen->isVisible()); });
-	} else {
-		qWarning() << "[cutie-panel] lockscreen item not found, external screens will not lock";
-	}
-
 	connect(qApp, &QGuiApplication::screenAdded, this, &ExternalScreens::add);
 	connect(qApp, &QGuiApplication::screenRemoved, this, &ExternalScreens::remove);
 
@@ -59,6 +47,11 @@ void ExternalScreens::add(QScreen *screen)
 
 	view->setSource(QUrl("qrc:/ExternalScreen.qml"));
 	m_views.insert(screen, view);
+	if (QQuickItem *lockscreen =
+		    view->rootObject()->findChild<QQuickItem *>("lockscreen")) {
+		connect(lockscreen, &QQuickItem::visibleChanged, this,
+			[this, view]() { apply(view); });
+	}
 	apply(view);
 
 	// The compositor decides which output the surface ends up on and Qt
@@ -78,30 +71,28 @@ void ExternalScreens::remove(QScreen *screen)
 	}
 }
 
-void ExternalScreens::setLocked(bool locked)
-{
-	m_locked = locked;
-	for (QQuickView *view : std::as_const(m_views))
-		apply(view);
-}
-
 void ExternalScreens::apply(QQuickView *view)
 {
 	if (!view || !view->screen() || view->screen() == qApp->primaryScreen())
 		return;
+	QQuickItem *lockscreen =
+		view->rootObject() ?
+			view->rootObject()->findChild<QQuickItem *>("lockscreen") :
+			nullptr;
+	const bool locked = lockscreen && lockscreen->isVisible();
 	const QSize screenSize = view->screen()->geometry().size();
-	const QSize size = m_locked ? screenSize
-				    : QSize(screenSize.width(), BarHeight);
+	const QSize size = locked ? screenSize
+				  : QSize(screenSize.width(), BarHeight);
 
 	qInfo() << "[cutie-panel] external screen" << view->screen()->name()
 		<< "geometry" << view->screen()->geometry()
-		<< (m_locked ? "locked" : "bar") << "window" << size;
+		<< (locked ? "locked" : "bar") << "window" << size;
 
 	LayerShellQt::Window *layer = LayerShellQt::Window::get(view);
 	layer->setDesiredSize(size);
-	layer->setExclusiveZone(m_locked ? -1 : BarHeight);
+	layer->setExclusiveZone(locked ? -1 : BarHeight);
+	layer->setKeyboardInteractivity(
+		locked ? LayerShellQt::Window::KeyboardInteractivityExclusive
+		       : LayerShellQt::Window::KeyboardInteractivityNone);
 	view->resize(size);
-
-	if (QQuickItem *root = view->rootObject())
-		root->setProperty("locked", m_locked);
 }

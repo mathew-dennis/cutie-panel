@@ -14,6 +14,7 @@ Item {
 	CutieScreenLock {
 		id: lockAuth
 	}
+	property bool pendingAuth: false
 
 	function timeChanged() {
         lockscreenTime.text = Qt.formatDateTime(new Date(), "HH:mm");
@@ -35,6 +36,7 @@ Item {
 	}
 
 	function onAuthSuccess() {
+		pendingAuth = false;
         unlockAnim.start();
 		pinPad.reset();
 		patternLock.reset();
@@ -42,6 +44,7 @@ Item {
 	}
 
 	function onAuthFailure() {
+		pendingAuth = false;
 		shakeAnim.start();
 		pinPad.reset();
 		patternLock.reset();
@@ -50,8 +53,11 @@ Item {
 
 	Connections {
 		target: lockAuth
-		function onUnlocked() { lockscreen.onAuthSuccess(); }
+		function onUnlocked() {
+			if (lockscreen.pendingAuth) lockscreen.onAuthSuccess();
+		}
 		function onPasswordAuthResult(success, error) {
+			if (!lockscreen.pendingAuth) return;
 			if (success) lockscreen.onAuthSuccess();
 			else lockscreen.onAuthFailure();
 		}
@@ -222,6 +228,7 @@ Item {
 				visible: lockAuth.method === "pin"
 				enabled: lockAuth.lockoutSecondsRemaining === 0
 				onPinEntered: (pin) => {
+					lockscreen.pendingAuth = true;
 					if (!lockAuth.verifyPin(pin))
 						lockscreen.onAuthFailure();
 				}
@@ -233,6 +240,7 @@ Item {
 				visible: lockAuth.method === "pattern"
 				enabled: lockAuth.lockoutSecondsRemaining === 0
 				onPatternEntered: (sequence) => {
+					lockscreen.pendingAuth = true;
 					if (!lockAuth.verifyPattern(sequence))
 						lockscreen.onAuthFailure();
 				}
@@ -246,7 +254,10 @@ Item {
 				width: 220
 				font.family: "Lato"
 				anchors.horizontalCenter: parent.horizontalCenter
-				onAccepted: lockAuth.authenticatePassword(text)
+				onAccepted: {
+					lockscreen.pendingAuth = true;
+					lockAuth.authenticatePassword(text);
+				}
 			}
 		}
 	}

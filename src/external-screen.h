@@ -17,10 +17,8 @@ public:
 private:
 	void add(QScreen *screen);
 	void remove(QScreen *screen);
-	void setLocked(bool locked);
 	void apply(QQuickView *view);
 
 	QQuickView *m_mainView;
 	QHash<QScreen *, QQuickView *> m_views;
-	bool m_locked = false;
 };
